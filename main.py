@@ -1,9 +1,11 @@
+import logging
 import tensorflow as tf
 from model import *
 from attack import *
 import cifar10 as data
 
 from sklearn.metrics import roc_auc_score
+logging.basicConfig(level='critical')
 
 auc = []
 for i in range(10):
