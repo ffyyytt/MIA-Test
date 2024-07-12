@@ -19,13 +19,15 @@ strategy, AUTO = getStrategy()
 trainLoaders, validLoader = data.loadFLTrain()
 miaData, miaLabels = data.loadMIAData()
 client_resources = {"num_cpus": 1, "num_gpus": 1}
+models = []
 with strategy.scope():
     initModel = model_factory()
+    for i in range(data.__N_CLIENTS__):
+        models.append(model_factory())
 
 class FlowerClient(fl.client.NumPyClient):
-    def __init__(self, cid, net, epochs, trainLoader, validLoader):
+    def __init__(self, cid, epochs, trainLoader, validLoader):
         self.cid = cid
-        self.net = net
         self.epochs = epochs
         self.trainLoader = trainLoader
         self.validLoader = validLoader
@@ -43,7 +45,6 @@ class FlowerClient(fl.client.NumPyClient):
         else:
             optimizer = "sgd"
         self.set_parameters(parameters)
-        print("HERE")
         self.net.compile(optimizer = optimizer,
                          loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                          metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
@@ -60,9 +61,8 @@ class FlowerClient(fl.client.NumPyClient):
         
 
 def client_fn(cid):
-    with strategy.scope():
-        model = model_factory()
     trainLoader = trainLoaders[int(cid)]
+    model = models[int(cid)]
     return FlowerClient(cid, model, localEpochs, trainLoader, validLoader).to_client()
 
 FLStrategy = MyFedAVG(
