@@ -11,3 +11,4 @@
 conda activate myenv
 python3 main.py
 python3 main-lira.py
+python3 mainFL.py
