@@ -19,7 +19,7 @@ with strategy.scope():
                   loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                   metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
     
-H = model.fit(cenTrain, verbose = False, epochs = 10)
+H = model.fit(cenTrain, verbose = False, epochs = 100)
 yPred = model.predict(miaData, verbose = False).astype(np.float16)
 scores = miaEntropy(yPred)
 print(roc_auc_score(miaLabels, scores))
@@ -34,7 +34,7 @@ for i in trange(data.__N_SHADOW__):
                       loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
-    H = model.fit(cenShadowTrain, verbose = False, epochs = 10)
+    H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
     shadowPredicts.append(model.predict(miaData, verbose = False).astype(np.float16))
     shadowLabels.append(shadowLabel)
     gc.collect()
