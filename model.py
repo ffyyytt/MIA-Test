@@ -32,7 +32,7 @@ def model_factory(backboneName: str = "resnet18", n_classes: int = 10):
     backbone, preprocess = Classifiers.get(backboneName)
     image = tf.keras.layers.Lambda(lambda x: preprocess(x))(inputImage)
     feature = tf.keras.layers.GlobalAveragePooling2D()(backbone(input_shape = (None, None, 3), weights=None, include_top=False)(image))
-    output = tf.keras.layers.Dense(n_classes, activation='softmax')(feature)
+    output = tf.keras.layers.Dense(n_classes, activation='softmax', name='output')(feature)
 
     model = tf.keras.models.Model(inputs = [inputImage], outputs = [output])
     return model
