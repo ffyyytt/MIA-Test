@@ -49,12 +49,12 @@ class FlowerClient(fl.client.NumPyClient):
                          metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
         H = self.net.fit(self.trainLoader, verbose=False, epochs=self.epochs)
-        return self.get_parameters(), len(self.trainloader), {}
+        return self.get_parameters(config), len(self.trainloader), {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         yPred = self.net.predict(self.validLoader)
-        loss = tf.keras.losses.SparseCategoricalCrossentropy(self.validLoader.labesl, yPred)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(self.validLoader.labesl, yPred).mean()
         accuracy = np.mean(self.validLoader.labesl == np.argmax(yPred, axis=1))
         return float(loss), len(self.validLoader), {"accuracy": float(accuracy)}
         
@@ -63,7 +63,7 @@ def client_fn(cid):
     with strategy.scope():
         model = model_factory()
     trainLoader = trainLoaders[int(cid)]
-    return FlowerClient(cid, model, trainLoader, validLoader, localEpochs).to_client()
+    return FlowerClient(cid, model, localEpochs, trainLoader, validLoader).to_client()
 
 FLStrategy = MyFedAVG(
         fraction_fit=1.,
