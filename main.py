@@ -1,11 +1,11 @@
-import logging
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
 from model import *
 from attack import *
 import cifar10 as data
 
 from sklearn.metrics import roc_auc_score
-logging.basicConfig(level='critical')
 
 auc = []
 for i in range(10):
