@@ -10,7 +10,7 @@ from sklearn.metrics import roc_auc_score
 auc = []
 for i in range(10):
     strategy, AUTO = getStrategy()
-    cenTrain = data.loadCenTrain()
+    cenTrain, _ = data.loadCenTrain()
     miaData, miaLabels = data.loadMIAData()
 
     with strategy.scope():
