@@ -23,38 +23,40 @@ class TFDataGen(tf.keras.utils.Sequence):
 
 
 __RANDOM__SEED__ = 1312
-__CIFAR10_N_CLASSES__ = 10
-__CIFAR10_N_SPLIT__ = 2
-__CIFAR10_N_SHADOW__ = 256
-__CIFAR10_TRAIN_SET__ = [0]
-__CIFAR10_MEMBER_SET__ = [0]
-__CIFAR10_NON_MEM_SET__ = [1]
-__CIFAR10_BATCH_SIZE__ = 1024
-def loadCenTrainCIFAR10():
+__N_CLASSES__ = 10
+__N_SPLIT__ = 2
+__N_SHADOW__ = 32
+__TRAIN_SET__ = [0]
+__MEMBER_SET__ = [0]
+__NON_MEM_SET__ = [1]
+__BATCH_SIZE__ = 1024
+def loadCenTrain():
     images, labels = [], []
-    (X, Y), _ = cifar10.load_data()
-    skf = StratifiedKFold(n_splits=__CIFAR10_N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
+    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
+    skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
-        if i in __CIFAR10_TRAIN_SET__:
+        if i in __TRAIN_SET__:
             images += X[test_index].tolist()
             labels += Y[test_index].tolist()
-    return TFDataGen(images, labels,  __CIFAR10_BATCH_SIZE__)
+    return TFDataGen(images, labels,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__)
 
-def loadCenShadowTrainCIFAR10(idx):
+def loadCenShadowTrain(idx):
     images, labels = [], []
-    (X, Y), _ = cifar10.load_data()
-    sss = StratifiedShuffleSplit(n_splits=__CIFAR10_N_SHADOW__, test_size=len(__CIFAR10_TRAIN_SET__)/__CIFAR10_N_SPLIT__, random_state=__RANDOM__SEED__)
+    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
+    shadowLabel = np.zeros([len(X)])
+    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__, test_size=len(__TRAIN_SET__)/__N_SPLIT__, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(sss.split(X, np.argmax(Y, axis=1))):
         if i == idx:
             images += X[test_index].tolist()
             labels += Y[test_index].tolist()
-    return TFDataGen(images, labels,  __CIFAR10_BATCH_SIZE__)
+            shadowLabel[test_index] = 1
+    return TFDataGen(images, labels,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__), shadowLabel
 
-def loadMIADataCIFAR10():
+def loadMIAData():
     (X, Y), _ = cifar10.load_data()
     labels = np.zeros_like(Y)
-    skf = StratifiedKFold(n_splits=__CIFAR10_N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
+    skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
-        if i in __CIFAR10_TRAIN_SET__:
+        if i in __TRAIN_SET__:
             labels[test_index] = 1
-    return TFDataGen(X, Y,  __CIFAR10_BATCH_SIZE__), labels
+    return TFDataGen(X, Y,  __BATCH_SIZE__), labels
