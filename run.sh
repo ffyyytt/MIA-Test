@@ -5,7 +5,7 @@
 #SBATCH --gres gpu:2
 #SBATCH --time 1-23:50:00
 #SBATCH --cpus-per-gpu 9
-#SBATCH --mem-per-cpu 3G
+#SBATCH --mem-per-cpu 5G
 #SBATCH --mail-type FAIL,END
 
 conda activate myenv
