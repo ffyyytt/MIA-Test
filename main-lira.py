@@ -22,9 +22,10 @@ with strategy.scope():
 H = model.fit(cenTrain, verbose = False, epochs = 100)
 yPred = model.predict(miaData, verbose = False)
 scores = miaEntropy(yPred)
+yPred = yPred[:, cenTrain.labels.astype(int)]
 print(np.mean(np.argmax(yPred, axis=1) == cenTrain.labels), roc_auc_score(miaLabels, scores))
 
-shadowLabels = []
+shadowLabels = [0]*data.__N_SHADOW__
 shadowPredicts = []
 for i in trange(data.__N_SHADOW__):
     cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
@@ -35,9 +36,9 @@ for i in trange(data.__N_SHADOW__):
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
     H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
-    shadowPredicts.append(model.predict(miaData, verbose = False))
-    shadowLabels.append(shadowLabel)
+    shadowPredicts.append(model.predict(miaData, verbose = False)[:, cenTrain.labels.astype(int)])
+    shadowLabels[i] = shadowLabel
     gc.collect()
 
-scores = LiRAOnline(yPred, cenTrain.labels, np.array(shadowPredicts), np.array(shadowLabels))
+scores = LiRAOnline(yPred, np.array(shadowPredicts), np.array(shadowLabels))
 print(roc_auc_score(miaLabels, scores))
