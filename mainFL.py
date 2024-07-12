@@ -43,6 +43,7 @@ class FlowerClient(fl.client.NumPyClient):
         else:
             optimizer = "sgd"
         self.set_parameters(parameters)
+        print("HERE")
         self.net.compile(optimizer = optimizer,
                          loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                          metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
