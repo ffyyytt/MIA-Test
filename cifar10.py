@@ -50,7 +50,7 @@ def loadFLTrain():
             images += X[test_index].tolist()
             labels += Y[test_index].tolist()
 
-    images = np.arayy(images)
+    images = np.array(images)
     labels = np.array(labels)
     data = []
     skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
@@ -81,7 +81,7 @@ def loadFLShadowTrain(idx):
             labels += Y[test_index].tolist()
             shadowLabel[test_index] = 1
 
-    images = np.arayy(images)
+    images = np.array(images)
     labels = np.array(labels)
     data = []
     skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
