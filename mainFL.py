@@ -24,9 +24,6 @@ with strategy.scope():
     initModel = model_factory()
     for i in range(data.__N_CLIENTS__):
         models.append(model_factory())
-        models[-1].compile(optimizer = "sgd", # ProxSGD()
-                           loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                           metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
 class FlowerClient(fl.client.NumPyClient):
     def __init__(self, cid, epochs, trainLoader, validLoader):
@@ -43,7 +40,15 @@ class FlowerClient(fl.client.NumPyClient):
             self.net.trainable_variables[i].assign(parameters[i])
 
     def fit(self, parameters, config):
+        if "proximal_mu" in config:
+            optimizer = ProxSGD(mu=config["proximal_mu"])
+        else:
+            optimizer = "sgd"
         self.set_parameters(parameters)
+        self.net.compile(optimizer = optimizer,
+                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+        
         H = self.net.fit(self.trainLoader, verbose=False, epochs=self.epochs)
         return self.get_parameters(config), len(self.trainloader), {}
 
