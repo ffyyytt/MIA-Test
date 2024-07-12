@@ -20,7 +20,8 @@ def _LiRAOnline(prob, shadowPredicts, shadowLabels, eps=1e-6):
     return probabilityNormalDistribution(shadowPredicts[truthIdxs], prob)/max(probabilityNormalDistribution(shadowPredicts[falseIdxs], prob), eps)
 
 def LiRAOnline(probs, labels, shadowPredicts, shadowLabels, eps=1e-6):
-    _probs = probs[:, labels]
-    _shadowPredicts = np.array([shadowPredict[:, labels] for shadowPredict in shadowPredicts])
+    _labels = labels.astype(int)
+    _probs = probs[:, _labels]
+    _shadowPredicts = np.array([shadowPredict[:, _labels] for shadowPredict in shadowPredicts])
     _shadowLabels = np.array(shadowLabels)
     return np.array([_LiRAOnline(_probs[i], _shadowPredicts[:, i], _shadowLabels[:, i], eps) for i in range(len(probs))])
