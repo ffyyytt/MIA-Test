@@ -34,7 +34,7 @@ for i in trange(data.__N_SHADOW__):
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
     H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
-    shadowPredicts.append([model.predict(miaData, verbose = False), cenShadowTrain.labels])
+    shadowPredicts.append(model.predict(miaData, verbose = False))
     shadowLabels.append(shadowLabel)
 
 scores = LiRAOnline(yPred, cenTrain.labels, np.array(shadowPredicts), np.array(shadowLabels))
