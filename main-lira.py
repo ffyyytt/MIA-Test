@@ -1,4 +1,5 @@
 import os
+import gc
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
 from tqdm import *
@@ -34,8 +35,9 @@ for i in trange(data.__N_SHADOW__):
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
     H = model.fit(cenShadowTrain, verbose = False, epochs = 10)
-    shadowPredicts.append(model.predict(miaData, verbose = False))
+    shadowPredicts.append(model.predict(miaData, verbose = False).astype("float16"))
     shadowLabels.append(shadowLabel)
+    gc.collect()
 
 scores = LiRAOnline(yPred, cenTrain.labels, np.array(shadowPredicts), np.array(shadowLabels))
 print(roc_auc_score(miaLabels, scores))
