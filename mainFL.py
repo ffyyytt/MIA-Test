@@ -64,7 +64,7 @@ def client_fn(cid):
     trainLoader = trainLoaders[int(cid)]
     return FlowerClient(cid, model, trainLoader, validLoader, localEpochs).to_client()
 
-strategy = MyFedAVG(
+FLStrategy = MyFedAVG(
         fraction_fit=1.,
         fraction_evaluate=1.,
         min_fit_clients=data.__N_CLIENTS__,
@@ -77,12 +77,12 @@ fl.simulation.start_simulation(
     client_fn=client_fn,
     num_clients=data.__N_CLIENTS__,
     config=fl.server.ServerConfig(num_rounds=rounds),
-    strategy=strategy,
+    strategy=FLStrategy,
     client_resources=client_resources,
 )
 
 for i in range(len(initModel.trainable_variables)):
-    initModel.trainable_variables[i].assign(strategy.parameters_aggregated[i])
+    initModel.trainable_variables[i].assign(FLStrategy.parameters_aggregated[i])
 yPred = initModel.predict(miaData, verbose = False)
 scores = miaEntropy(yPred)
 print("AUC:", roc_auc_score(miaLabels, scores))
