@@ -5,12 +5,12 @@ from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
 
 class TFDataGen(tf.keras.utils.Sequence):
-    def __init__(self, images, labels, batch_size):
+    def __init__(self, images, labels, batch_size, **kwargs):
         self.labels = np.array(labels)
         self.images = np.array(images)
         self.ids = np.arange(len(self.labels))
         self.batch_size = batch_size
-        self.on_epoch_end()
+        super().__init__(**kwargs)
 
     def __len__(self):
         return len(self.images) // self.batch_size + int(len(self.images) % self.batch_size != 0)
