@@ -1,6 +1,6 @@
 import flwr as fl
 import tensorflow as tf
-import tensorflow.keras.backend as K
+import keras.backend as K
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
