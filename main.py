@@ -1,6 +1,8 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
+
+from tqdm import *
 from model import *
 from attack import *
 import cifar10 as data
@@ -8,7 +10,7 @@ import cifar10 as data
 from sklearn.metrics import roc_auc_score
 
 auc = []
-for i in range(10):
+for i in trange(10):
     strategy, AUTO = getStrategy()
     cenTrain, _ = data.loadCenTrain()
     miaData, miaLabels = data.loadMIAData()
