@@ -13,6 +13,8 @@ def fix_gpu():
     config = ConfigProto()
     config.gpu_options.allow_growth = True
     session = InteractiveSession(config=config)
+    devices = tf.config.experimental.list_physical_devices('GPU')
+    tf.config.experimental.set_memory_growth(devices[0], True)
 fix_gpu()
 
 strategy, AUTO = getStrategy()
