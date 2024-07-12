@@ -18,7 +18,7 @@ localEpochs = 10
 strategy, AUTO = getStrategy()
 trainLoaders, validLoader = data.loadFLTrain()
 miaData, miaLabels = data.loadMIAData()
-client_resources = {"num_cpus": 8, "num_gpus": 1}
+client_resources = {"num_cpus": 1, "num_gpus": 1}
 with strategy.scope():
     initModel = model_factory()
 
