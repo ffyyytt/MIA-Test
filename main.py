@@ -9,9 +9,9 @@ import cifar10 as data
 
 from sklearn.metrics import roc_auc_score
 
+strategy, AUTO = getStrategy()
 auc = []
 for i in trange(10):
-    strategy, AUTO = getStrategy()
     cenTrain, _ = data.loadCenTrain()
     miaData, miaLabels = data.loadMIAData()
 
