@@ -24,7 +24,7 @@ print(roc_auc_score(miaLabels, scores))
 shadowLabels = []
 shadowPredicts = []
 for i in trange(data.__N_SHADOW__):
-    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain()
+    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
     with strategy.scope():
         model = model_factory()
         model.compile(optimizer = "sgd",
