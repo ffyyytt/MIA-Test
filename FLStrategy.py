@@ -1,4 +1,5 @@
 import flwr as fl
+import numpy as np
 import tensorflow as tf
 import keras.backend as K
 from logging import WARNING
@@ -202,8 +203,9 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
         return self.updates
     
 class FlowerClient(fl.client.NumPyClient):
-    def __init__(self, cid, epochs, trainLoader, validLoader):
+    def __init__(self, cid, net, epochs, trainLoader, validLoader):
         self.cid = cid
+        self.net = net
         self.epochs = epochs
         self.trainLoader = trainLoader
         self.validLoader = validLoader
