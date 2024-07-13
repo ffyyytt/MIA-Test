@@ -8,7 +8,7 @@ class TFDataGen(tf.keras.utils.Sequence):
     def __init__(self, images, labels, preprocess, batch_size, **kwargs):
         self.preprocess = preprocess
         self.labels = preprocess(np.array(labels, dtype="float32"))
-        self.images = preprocess(np.array(images, dtype="float32"))
+        self.images = np.array(images, dtype="float32")
         self.ids = np.arange(len(self.labels))
         self.batch_size = batch_size
         super().__init__(**kwargs)
