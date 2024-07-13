@@ -6,6 +6,7 @@ def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, a
     return yPred
 
 def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn):
+    print(server_model.trainable_variables)
     for i in range(len(server_model.trainable_variables)):
         for j in range(len(client_models)):
             client_models[j].trainable_variables[i].assign(server_model[i])
