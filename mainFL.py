@@ -16,10 +16,12 @@ from sklearn.metrics import roc_auc_score
 rounds = 10
 localEpochs = 10
 strategy, AUTO = getStrategy()
-trainLoaders, validLoader = data.loadFLTrain()
-miaData, miaLabels = data.loadMIAData()
+with strategy.scope():
+    initModel, preprocess = model_factory()
+trainLoaders, validLoader = data.loadFLTrain(preprocess)
+miaData, miaLabels = data.loadMIAData(preprocess)
 client_resources = {"num_cpus": 8, "num_gpus": 1}
 
-yPred = trainFL(trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data.__N_CLIENTS__)
+yPred = trainFL(strategy, initModel, trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data.__N_CLIENTS__, model_factory)
 scores = miaEntropy(yPred)
 print("AUC:", roc_auc_score(miaLabels, scores))

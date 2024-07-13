@@ -30,9 +30,8 @@ def getStrategy():
 def model_factory(backboneName: str = "resnet18", n_classes: int = 10):
     inputImage = tf.keras.layers.Input(shape = (None, None, 3), dtype=tf.float32, name = f'image')
     backbone, preprocess = Classifiers.get(backboneName)
-    image = tf.keras.layers.Lambda(lambda x: preprocess(x), output_shape=(None, None, 3))(inputImage)
-    feature = tf.keras.layers.GlobalAveragePooling2D()(backbone(input_shape = (None, None, 3), weights=None, include_top=False)(image))
+    feature = tf.keras.layers.GlobalAveragePooling2D()(backbone(input_shape = (None, None, 3), weights=None, include_top=False)(inputImage))
     output = tf.keras.layers.Dense(n_classes, activation='softmax', name='output')(feature)
 
     model = tf.keras.models.Model(inputs = [inputImage], outputs = [output])
-    return model
+    return preprocess, model

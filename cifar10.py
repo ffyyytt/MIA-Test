@@ -5,9 +5,10 @@ from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
 
 class TFDataGen(tf.keras.utils.Sequence):
-    def __init__(self, images, labels, batch_size, **kwargs):
-        self.labels = np.array(labels, dtype="float32")
-        self.images = np.array(images, dtype="float32")
+    def __init__(self, images, labels, preprocess, batch_size, **kwargs):
+        self.preprocess = preprocess
+        self.labels = preprocess(np.array(labels, dtype="float32"))
+        self.images = preprocess(np.array(images, dtype="float32"))
         self.ids = np.arange(len(self.labels))
         self.batch_size = batch_size
         super().__init__(**kwargs)
@@ -31,7 +32,7 @@ __TRAIN_SET__ = [0]
 __MEMBER_SET__ = [0]
 __NON_MEM_SET__ = [1]
 __BATCH_SIZE__ = 1024
-def loadCenTrain():
+def loadCenTrain(preprocess):
     images, labels = [], []
     (X, Y), (X_valid, Y_valid) = cifar10.load_data()
     skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
@@ -39,9 +40,9 @@ def loadCenTrain():
         if i in __TRAIN_SET__:
             images += X[test_index].tolist()
             labels += Y[test_index].tolist()
-    return TFDataGen(images, labels,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__)
+    return TFDataGen(images, labels,  preprocess,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__)
 
-def loadFLTrain():
+def loadFLTrain(preprocess):
     images, labels = [], []
     (X, Y), (X_valid, Y_valid) = cifar10.load_data()
     skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
@@ -55,10 +56,10 @@ def loadFLTrain():
     data = []
     skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf_fl.split(images, labels)):
-        data.append(TFDataGen(images[test_index], labels[test_index],  __BATCH_SIZE__))
-    return data, TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__)
+        data.append(TFDataGen(images[test_index], labels[test_index],  preprocess,  __BATCH_SIZE__))
+    return data, TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__)
 
-def loadCenShadowTrain(idx):
+def loadCenShadowTrain(idx, preprocess):
     images, labels = [], []
     (X, Y), (X_valid, Y_valid) = cifar10.load_data()
     shadowLabel = np.zeros([len(X)])
@@ -68,9 +69,9 @@ def loadCenShadowTrain(idx):
             images += X[test_index].tolist()
             labels += Y[test_index].tolist()
             shadowLabel[test_index] = 1
-    return TFDataGen(images, labels,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__), shadowLabel
+    return TFDataGen(images, labels,  preprocess,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__), shadowLabel
 
-def loadFLShadowTrain(idx):
+def loadFLShadowTrain(idx, preprocess):
     images, labels = [], []
     (X, Y), (X_valid, Y_valid) = cifar10.load_data()
     shadowLabel = np.zeros([len(X)])
@@ -86,14 +87,14 @@ def loadFLShadowTrain(idx):
     data = []
     skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf_fl.split(images, labels)):
-        data.append(TFDataGen(images[test_index], labels[test_index],  __BATCH_SIZE__))
-    return data, TFDataGen(X_valid, Y_valid,  __BATCH_SIZE__), shadowLabel
+        data.append(TFDataGen(images[test_index], labels[test_index],  preprocess,  __BATCH_SIZE__))
+    return data, TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__), shadowLabel
 
-def loadMIAData():
+def loadMIAData(preprocess):
     (X, Y), _ = cifar10.load_data()
     labels = np.zeros_like(Y)
     skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
         if i in __TRAIN_SET__:
             labels[test_index] = 1
-    return TFDataGen(X, Y,  __BATCH_SIZE__), labels
+    return TFDataGen(X, Y, preprocess,  __BATCH_SIZE__), labels
