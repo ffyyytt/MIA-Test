@@ -8,7 +8,7 @@ class TFDataGen(tf.keras.utils.Sequence):
     def __init__(self, images, labels, preprocess, batch_size, **kwargs):
         self.preprocess = preprocess
         self.labels = np.array(labels, dtype="float32")
-        self.images = preprocess(np.array(images, dtype="float32"))
+        self.images = np.array(images, dtype="float32")
         self.ids = np.arange(len(self.labels))
         self.batch_size = batch_size
         super().__init__(**kwargs)
@@ -18,7 +18,7 @@ class TFDataGen(tf.keras.utils.Sequence):
 
     def __getitem__(self, index):
         ids = self.ids[index*self.batch_size: min((index+1)*self.batch_size, len(self.ids))]
-        images = self.images[ids]
+        images = self.preprocess(self.images[ids])
         label = self.labels[ids]
         return {"image": images}, {"output": label}
 
