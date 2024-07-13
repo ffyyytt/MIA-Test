@@ -9,6 +9,6 @@
 #SBATCH --mail-type FAIL,END
 
 conda activate myenv
-python3 main.py
 python3 mainFL.py
+python3 main.py
 python3 main-lira.py
