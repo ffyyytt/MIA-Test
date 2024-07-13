@@ -25,6 +25,7 @@ for i in trange(10):
     yPred = model.predict(miaData, verbose = False)
     scores = miaEntropy(yPred)
     auc.append(roc_auc_score(miaLabels, scores))
+    print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels), "AUC:", roc_auc_score(miaLabels, scores))
     
 print(auc)
 print("Mean AUC:", np.mean(auc))

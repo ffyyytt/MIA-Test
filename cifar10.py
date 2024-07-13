@@ -31,7 +31,7 @@ __N_CLIENTS__ = 10
 __TRAIN_SET__ = [0]
 __MEMBER_SET__ = [0]
 __NON_MEM_SET__ = [1]
-__BATCH_SIZE__ = 1024
+__BATCH_SIZE__ = 128
 def loadCenTrain(preprocess):
     images, labels = [], []
     (X, Y), (X_valid, Y_valid) = cifar10.load_data()
