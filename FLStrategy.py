@@ -215,8 +215,14 @@ class FlowerClient(fl.client.NumPyClient):
         return self.net.trainable_variables
     
     def set_parameters(self, parameters):
-        for i in range(len(self.net.trainable_variables)):
-            self.net.trainable_variables[i].assign(parameters[i])
+        try:
+            for i in range(len(self.net.trainable_variables)):
+                self.net.trainable_variables[i].assign(parameters[i])
+        except:
+            with self.strategy.scope():
+                self.net = model_factory()
+            for i in range(len(self.net.trainable_variables)):
+                self.net.trainable_variables[i].assign(parameters[i])
 
     def fit(self, parameters, config):
         if "proximal_mu" in config:
