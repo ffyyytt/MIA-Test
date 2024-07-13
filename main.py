@@ -12,14 +12,14 @@ from sklearn.metrics import roc_auc_score
 strategy, AUTO = getStrategy()
 auc = []
 for i in trange(10):
-    cenTrain, _ = data.loadCenTrain()
-    miaData, miaLabels = data.loadMIAData()
-
     with strategy.scope():
-        model = model_factory()
+        model, preprocess = model_factory()
         model.compile(optimizer = "sgd",
                     loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                     metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+        
+    cenTrain, _ = data.loadCenTrain(preprocess)
+    miaData, miaLabels = data.loadMIAData(preprocess)
         
     H = model.fit(cenTrain, verbose = False, epochs = 100)
     yPred = model.predict(miaData, verbose = False)

@@ -10,14 +10,14 @@ import cifar10 as data
 from sklearn.metrics import roc_auc_score
 
 strategy, AUTO = getStrategy()
-cenTrain, _ = data.loadCenTrain()
-miaData, miaLabels = data.loadMIAData()
-
 with strategy.scope():
-    model = model_factory()
+    model, preprocess = model_factory()
     model.compile(optimizer = "sgd",
                   loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                   metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+    
+cenTrain, _ = data.loadCenTrain(preprocess)
+miaData, miaLabels = data.loadMIAData(preprocess)
     
 H = model.fit(cenTrain, verbose = False, epochs = 100)
 yPred = model.predict(miaData, verbose = False)
@@ -28,13 +28,12 @@ print(np.mean(np.argmax(yPred, axis=1) == miaData.labels), roc_auc_score(miaLabe
 shadowLabels = [0]*data.__N_SHADOW__
 shadowPredicts = []
 for i in trange(data.__N_SHADOW__):
-    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
     with strategy.scope():
-        model = model_factory()
+        model, preprocess = model_factory()
         model.compile(optimizer = "sgd",
                       loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
-        
+    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
     H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
     shadowPredicts.append(model.predict(miaData, verbose = False)[:, miaData.labels.astype(int)])
     shadowLabels[i] = shadowLabel
