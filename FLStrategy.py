@@ -2,6 +2,7 @@ import flwr as fl
 import numpy as np
 import tensorflow as tf
 import keras.backend as K
+from model import *
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -209,6 +210,7 @@ class FlowerClient(fl.client.NumPyClient):
         self.epochs = epochs
         self.trainLoader = trainLoader
         self.validLoader = validLoader
+        self.strategy,_ = getStrategy()
 
     def get_parameters(self, config):
         return self.net.trainable_variables
@@ -222,11 +224,14 @@ class FlowerClient(fl.client.NumPyClient):
             optimizer = ProxSGD(mu=config["proximal_mu"])
         else:
             optimizer = "sgd"
-        self.set_parameters(parameters)
-        self.net.compile(optimizer = optimizer,
-                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
+        with self.strategy.scope():
+            self.net = model_factory()
+            self.set_parameters(parameters)
+            self.net.compile(optimizer = optimizer,
+                            loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                            metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+            
         H = self.net.fit(self.trainLoader, verbose=False, epochs=self.epochs)
         return self.get_parameters(config), len(self.trainloader), {}
 
@@ -237,26 +242,23 @@ class FlowerClient(fl.client.NumPyClient):
         accuracy = np.mean(self.validLoader.labesl == np.argmax(yPred, axis=1))
         return float(loss), len(self.validLoader), {"accuracy": float(accuracy)}
     
-def trainFL(strategy, trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data, model_factory):
-    models = []
+def trainFL(trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, n_clients):
+    strategy, AUTO = getStrategy()
     with strategy.scope():
         initModel = model_factory()
-        for i in range(data.__N_CLIENTS__):
-            models.append(model_factory())
     def client_fn(cid):
         trainLoader = trainLoaders[int(cid)]
-        model = models[int(cid)]
-        return FlowerClient(cid, model, localEpochs, trainLoader, validLoader).to_client()
+        return FlowerClient(cid, localEpochs, trainLoader, validLoader).to_client()
     
     FLStrategy = MyFedAVG(fraction_fit=1.,
                           fraction_evaluate=1.,
-                          min_fit_clients=data.__N_CLIENTS__,
-                          min_evaluate_clients=data.__N_CLIENTS__,
-                          min_available_clients=data.__N_CLIENTS__,
+                          min_fit_clients=n_clients,
+                          min_evaluate_clients=n_clients,
+                          min_available_clients=n_clients,
                           initial_parameters=fl.common.ndarrays_to_parameters(initModel.trainable_variables))
     
     fl.simulation.start_simulation(client_fn=client_fn,
-                                   num_clients=data.__N_CLIENTS__,
+                                   num_clients=n_clients,
                                    config=fl.server.ServerConfig(num_rounds=rounds),
                                    strategy=FLStrategy,
                                    client_resources=client_resources)

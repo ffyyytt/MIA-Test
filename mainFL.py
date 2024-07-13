@@ -20,6 +20,6 @@ trainLoaders, validLoader = data.loadFLTrain()
 miaData, miaLabels = data.loadMIAData()
 client_resources = {"num_cpus": 1, "num_gpus": 1}
 
-yPred = trainFL(strategy, trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data, model_factory)
+yPred = trainFL(trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data.__N_CLIENTS__)
 scores = miaEntropy(yPred)
 print("AUC:", roc_auc_score(miaLabels, scores))
