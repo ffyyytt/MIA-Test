@@ -1,7 +1,8 @@
 import numpy as np
+from tqdm import *
 
 def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds):
-    for round in range(rounds):
+    for round in trange(rounds):
         yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn)
     return yPred
 
