@@ -1,5 +1,6 @@
 import scipy
 import numpy as np
+from tqdm import *
 
 def _log(probs, small_value=1e-30):
     return np.log(np.maximum(probs, small_value))
@@ -20,4 +21,7 @@ def _LiRAOnline(prob, shadowPredicts, shadowLabels, eps=1e-6):
     return probabilityNormalDistribution(shadowPredicts[truthIdxs], prob)/max(probabilityNormalDistribution(shadowPredicts[falseIdxs], prob), eps)
 
 def LiRAOnline(probs, shadowPredicts, shadowLabels, eps=1e-6):
-    return np.array([_LiRAOnline(probs[i], shadowPredicts[:, i], shadowLabels[:, i], eps) for i in range(len(probs))])
+    results = [0]*len(probs)
+    for i in trange(len(probs)):
+        results[i] = _LiRAOnline(probs[i], shadowPredicts[:, i], shadowLabels[:, i], eps)
+    return np.array(results)
