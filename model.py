@@ -34,4 +34,4 @@ def model_factory(backboneName: str = "resnet18", n_classes: int = 10):
     output = tf.keras.layers.Dense(n_classes, activation='softmax', name='output')(feature)
 
     model = tf.keras.models.Model(inputs = [inputImage], outputs = [output])
-    return preprocess, model
+    return model, preprocess
