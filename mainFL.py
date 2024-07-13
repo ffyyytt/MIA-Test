@@ -18,7 +18,7 @@ localEpochs = 10
 strategy, AUTO = getStrategy()
 trainLoaders, validLoader = data.loadFLTrain()
 miaData, miaLabels = data.loadMIAData()
-client_resources = {"num_cpus": 1, "num_gpus": 1}
+client_resources = {"num_cpus": 8, "num_gpus": 1}
 
 yPred = trainFL(trainLoaders, validLoader, miaData, localEpochs, rounds, client_resources, data.__N_CLIENTS__)
 scores = miaEntropy(yPred)
