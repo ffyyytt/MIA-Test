@@ -19,4 +19,4 @@ def do_one_round(client_models, server_model, trainLoaders, validLoader, local_e
 
 def avg_aggregate(server_model, client_models):
     for i in range(len(server_model.trainable_variables)):
-        server_model.trainable_variables[i].assign(sum([client_models.trainable_variables[j] for j in range(len(client_models))])/len(client_models))
+        server_model.trainable_variables[i].assign(sum([client_models[j].trainable_variables[i] for j in range(len(client_models))])/len(client_models))
