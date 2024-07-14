@@ -15,8 +15,8 @@ for i in trange(10):
     with strategy.scope():
         model, preprocess = model_factory()
         model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-4),
-                    loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                    metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+                      loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                      metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
     cenTrain, cenValid = data.loadCenTrain(preprocess)
     miaData, miaLabels = data.loadMIAData(preprocess)

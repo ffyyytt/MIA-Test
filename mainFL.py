@@ -24,8 +24,8 @@ else:
     aggregate = ft_aggregate
 
 
-rounds = 25
-localEpochs = 4
+rounds = 50
+localEpochs = 2
 strategy, AUTO = getStrategy()
 clientModels = []
 with strategy.scope():
