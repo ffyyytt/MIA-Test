@@ -18,14 +18,14 @@ for i in trange(10):
                     loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                     metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
         
-    cenTrain, _ = data.loadCenTrain(preprocess)
+    cenTrain, cenValid = data.loadCenTrain(preprocess)
     miaData, miaLabels = data.loadMIAData(preprocess)
         
-    H = model.fit(cenTrain, verbose = False, epochs = 100)
+    H = model.fit(cenTrain, verbose = True, epochs = 100)
     yPred = model.predict(miaData, verbose = False)
     scores = miaEntropy(yPred)
     auc.append(roc_auc_score(miaLabels, scores))
-    print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels), "AUC:", roc_auc_score(miaLabels, scores))
+    print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels.flatten()), "AUC:", roc_auc_score(miaLabels, scores))
     
 print(auc)
 print("Mean AUC:", np.mean(auc))
