@@ -36,13 +36,11 @@ with strategy.scope():
     serverModel, preprocess = model_factory()
     for i in range(data.__N_CLIENTS__):
         clientModels.append(model_factory()[0])
-        clientModels[-1].compile(optimizer = optimizer,
-                                 loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                                 metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+        
 trainLoaders, validLoader = data.loadFLTrain(preprocess)
 miaData, miaLabels = data.loadMIAData(preprocess)
 
-doFL(clientModels, serverModel, trainLoaders, validLoader, localEpochs, aggregate, rounds)
+doFL(clientModels, serverModel, trainLoaders, validLoader, localEpochs, aggregate, rounds, optimizer)
 yPred = serverModel.predict(miaData)
 scores = miaEntropy(yPred)
 print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels.flatten()), "AUC:", roc_auc_score(miaLabels, scores))

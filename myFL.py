@@ -3,15 +3,18 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from tqdm import *
 
-def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds):
+def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer):
     for round in trange(rounds):
-        yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn)
+        yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer)
         print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
-def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn):
+def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
     for i in range(len(server_model.trainable_variables)):
         for j in range(len(client_models)):
+            client_models[j].compile(optimizer = optimizer,
+                                     loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                                     metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
             client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
 
     for i in range(len(client_models)):
