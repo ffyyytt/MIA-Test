@@ -12,7 +12,11 @@ def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, a
 def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
     for i in range(len(server_model.trainable_variables)):
         for j in range(len(client_models)):
-            client_models[j].compile(optimizer = optimizer,
+            if optimizer == "FedProx":
+                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
+            else:
+                _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
+            client_models[j].compile(optimizer = _optimizer,
                                      loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                                      metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
             client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])

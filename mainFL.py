@@ -18,10 +18,6 @@ import cifar10 as data
 
 from sklearn.metrics import roc_auc_score
 
-if args.FL == "FedProx":
-    optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
-else:
-    optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
 if args.method == 0:
     aggregate = avg_aggregate
 else:
@@ -40,7 +36,7 @@ with strategy.scope():
 trainLoaders, validLoader = data.loadFLTrain(preprocess)
 miaData, miaLabels = data.loadMIAData(preprocess)
 
-doFL(clientModels, serverModel, trainLoaders, validLoader, localEpochs, aggregate, rounds, optimizer)
+doFL(clientModels, serverModel, trainLoaders, validLoader, localEpochs, aggregate, rounds, args.FL)
 yPred = serverModel.predict(miaData)
 scores = miaEntropy(yPred)
 print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels.flatten()), "AUC:", roc_auc_score(miaLabels, scores))
