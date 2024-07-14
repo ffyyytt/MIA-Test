@@ -24,8 +24,8 @@ else:
     aggregate = ft_aggregate
 
 
-rounds = 25
-localEpochs = 4
+rounds = 10
+localEpochs = 10
 strategy, AUTO = getStrategy()
 clientModels = []
 with strategy.scope():
@@ -37,6 +37,6 @@ trainLoaders, validLoader = data.loadFLTrain(preprocess)
 miaData, miaLabels = data.loadMIAData(preprocess)
 
 doFL(clientModels, serverModel, trainLoaders, validLoader, localEpochs, aggregate, rounds, args.FL)
-yPred = serverModel.predict(miaData)
+yPred = clientModels[0].predict(miaData)
 scores = miaEntropy(yPred)
 print("Accuracy:", np.mean(np.argmax(yPred, axis=1)==miaData.labels.flatten()), "AUC:", roc_auc_score(miaLabels, scores))
