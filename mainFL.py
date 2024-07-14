@@ -19,9 +19,9 @@ import cifar10 as data
 from sklearn.metrics import roc_auc_score
 
 if args.FL == "FedProx":
-    optimizer = ProxSGD(mu=1e-3)
+    optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
 else:
-    optimizer = tf.keras.optimizers.SGD()
+    optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
 if args.method == 0:
     aggregate = avg_aggregate
 else:
