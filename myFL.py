@@ -95,3 +95,39 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
         v.assign(v_new)
         r.assign(r_new)
         var.assign(var_update)
+
+    def update_step(self, grad, var, apply_state=None):
+        var_device, var_dtype = var.device, var.dtype.base_dtype
+        coefficients = apply_state[(var_device, var_dtype)]
+
+        epsilon = self.epsilon_initial / ((self.iterations + 4) ** self.epsilon_decay)
+        rho = self.rho_initial / ((self.iterations + 4) ** self.rho_decay)
+        beta = self.beta
+        delta = 1e-07
+
+        v = self.get_slot(var, 'v')
+        r = self.get_slot(var, 'r')
+
+        v_new = (1 - rho) * v + rho * grad
+        r_new = beta * r + (1 - beta) * tf.square(grad)
+        tau = tf.sqrt(r_new / (1 - tf.pow(beta, tf.cast(self.iterations + 1, tf.float32)))) + delta
+
+        x_tmp = var - v_new / tau
+
+        if self.mu is not None:
+            mu_normalized = self.mu / tau
+            x_hat = tf.maximum(x_tmp - mu_normalized, 0) - tf.maximum(-x_tmp - mu_normalized, 0)
+        else:
+            x_hat = x_tmp
+
+        if self.clip_bounds is not None:
+            low = self.clip_bounds[0]
+            up = self.clip_bounds[1]
+            x_hat = tf.clip_by_value(x_hat, low, up)
+
+        var_update = var + epsilon * (x_hat - var)
+
+        self.iterations.assign_add(1)
+        v.assign(v_new)
+        r.assign(r_new)
+        var.assign(var_update)
