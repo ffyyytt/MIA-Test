@@ -12,8 +12,8 @@ import cifar10 as data
 
 from sklearn.metrics import roc_auc_score
 
-rounds = 10
-localEpochs = 10
+rounds = 25
+localEpochs = 4
 strategy, AUTO = getStrategy()
 clientModels = []
 with strategy.scope():

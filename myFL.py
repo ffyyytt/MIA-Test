@@ -4,7 +4,6 @@ from tqdm import *
 def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds):
     for round in trange(rounds):
         yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn)
-        print(np.argmax(yPred, axis=1), validLoader.labels.flatten())
         print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
@@ -14,10 +13,10 @@ def do_one_round(client_models, server_model, trainLoaders, validLoader, local_e
             client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
 
     for i in range(len(client_models)):
-        client_models[i].fit(trainLoaders[i], validation_data = validLoader, verbose=True, epochs=local_epochs)
+        client_models[i].fit(trainLoaders[i], verbose=False, epochs=local_epochs)
     
     aggregate_fn(server_model, client_models)
-    yPred = client_models[0].predict(validLoader, verbose=False)
+    yPred = server_model.predict(validLoader, verbose=False)
     return yPred
 
 def avg_aggregate(server_model, client_models):
