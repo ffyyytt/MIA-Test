@@ -33,7 +33,7 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
     ProxSGD: Training Structured Neural Networks under Regularization and Constraints, ICLR 2020
     URL: https://openreview.net/forum?id=HygpthEtvr
     # Arguments
-        epsilon_initial: float >= 0. initial learning rate for weights.
+        learning_rate  : float >= 0. initial learning rate for weights.
         epsilon_decay  : float >= 0. learning rate (for weights) decay over each update.
         rho_initial    : float >= 0. initial learning rate for momentum.
         rho_decay      : float >= 0. learning rate (for momentum) decay over each update.
@@ -42,10 +42,10 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
         clipping_bound : float.      A vector including lower bound and upper bound.
     """
 
-    def __init__(self, epsilon_initial=0.06, epsilon_decay=0.5, rho_initial=0.9, rho_decay=0.5, beta=0.999,
+    def __init__(self, learning_rate=0.06, epsilon_decay=0.5, rho_initial=0.9, rho_decay=0.5, beta=0.999,
                  mu=1e-4, clip_bounds=None, name='ProxSGD', **kwargs):
         super(ProxSGD, self).__init__(name, **kwargs)
-        self.epsilon_initial = epsilon_initial
+        self.learning_rate = learning_rate
         self.epsilon_decay = epsilon_decay
         self.rho_initial = rho_initial
         self.rho_decay = rho_decay
@@ -63,7 +63,7 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
         var_device, var_dtype = var.device, var.dtype.base_dtype
         coefficients = apply_state[(var_device, var_dtype)]
         
-        epsilon = self.epsilon_initial / ((self.iterations + 4) ** self.epsilon_decay)
+        epsilon = self.learning_rate / ((self.iterations + 4) ** self.epsilon_decay)
         rho = self.rho_initial / ((self.iterations + 4) ** self.rho_decay)
         beta = self.beta
         delta = 1e-07
@@ -102,7 +102,7 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
     def get_config(self):
         config = super(ProxSGD, self).get_config()
         config.update({
-            'epsilon_initial': self.epsilon_initial,
+            'learning_rate': self.learning_rate,
             'epsilon_decay': self.epsilon_decay,
             'rho_initial': self.rho_initial,
             'rho_decay': self.rho_decay,
@@ -116,7 +116,7 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
         var_device, var_dtype = var.device, var.dtype.base_dtype
         coefficients = apply_state[(var_device, var_dtype)]
 
-        epsilon = self.epsilon_initial / ((self.iterations + 4) ** self.epsilon_decay)
+        epsilon = self.learning_rate / ((self.iterations + 4) ** self.epsilon_decay)
         rho = self.rho_initial / ((self.iterations + 4) ** self.rho_decay)
         beta = self.beta
         delta = 1e-07
