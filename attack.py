@@ -1,6 +1,7 @@
 import scipy
 import numpy as np
 from tqdm import *
+from sklearn.metrics import roc_curve
 
 def _log(probs, small_value=1e-30):
     return np.log(np.maximum(probs, small_value))
@@ -25,3 +26,8 @@ def LiRAOnline(probs, shadowPredicts, shadowLabels, eps=1e-6):
     for i in trange(len(probs)):
         results[i] = _LiRAOnline(probs[i], shadowPredicts[:, i], shadowLabels[:, i], eps)
     return np.array(results)
+
+def TPRatFPR(y_true, y_score, target_fpr = 0.01):
+    fpr, tpr, thresholds = roc_curve(y_true, y_score)
+    tpr_at_target_fpr = tpr[np.where(fpr >= target_fpr)[0][0]]
+    return tpr_at_target_fpr

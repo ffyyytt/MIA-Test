@@ -33,7 +33,7 @@ for i in trange(data.__N_SHADOW__):
         model.compile(optimizer = "sgd",
                       loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
-    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
+    cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i, preprocess)
     H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
     shadowPredicts.append(model.predict(miaData, verbose = False)[:, miaData.labels.flatten().astype(int)])
     shadowLabels[i] = shadowLabel
