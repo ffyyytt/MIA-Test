@@ -4,7 +4,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 parser = argparse.ArgumentParser("YOLO")
 parser.add_argument("-FL", help="Model backbone", nargs='?', type=str, default="FedAvg")
-parser.add_argument("-method", help="0: Federated Learning, 1: Federated Feature", nargs='?', type=int, default=200)
+parser.add_argument("-method", help="0: Federated Learning, 1: Federated Feature", nargs='?', type=int, default=0)
 args = parser.parse_args()
 
 import numpy as np

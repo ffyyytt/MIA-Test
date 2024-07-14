@@ -9,6 +9,9 @@
 #SBATCH --mail-type FAIL,END
 
 conda activate myenv
-python3 mainFL.py
+python3 mainFL.py -FL "FedAvg" -method 0
+python3 mainFL.py -FL "FedAvg" -method 1
+python3 mainFL.py -FL "FedProx" -method 0
+python3 mainFL.py -FL "FedProx" -method 1
 python3 main.py
 python3 main-lira.py
