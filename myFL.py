@@ -4,6 +4,7 @@ from tqdm import *
 def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds):
     for round in trange(rounds):
         yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn)
+        print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
 def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn):
