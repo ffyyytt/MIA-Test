@@ -22,7 +22,7 @@ miaData, miaLabels = data.loadMIAData(preprocess)
 H = model.fit(cenTrain, verbose = False, epochs = 100)
 yPred = model.predict(miaData, verbose = False)
 scores = miaEntropy(yPred)
-yPred = yPred[:, miaData.labels.astype(int)]
+yPred = yPred[:, miaData.labels.flatten().astype(int)]
 print(np.mean(np.argmax(yPred, axis=1) == miaData.labels), roc_auc_score(miaLabels, scores))
 
 shadowLabels = [0]*data.__N_SHADOW__
@@ -35,7 +35,7 @@ for i in trange(data.__N_SHADOW__):
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
     cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i)
     H = model.fit(cenShadowTrain, verbose = False, epochs = 100)
-    shadowPredicts.append(model.predict(miaData, verbose = False)[:, miaData.labels.astype(int)])
+    shadowPredicts.append(model.predict(miaData, verbose = False)[:, miaData.labels.flatten().astype(int)])
     shadowLabels[i] = shadowLabel
     gc.collect()
 
