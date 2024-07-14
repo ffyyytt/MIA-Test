@@ -21,7 +21,7 @@ for i in trange(10):
     cenTrain, cenValid = data.loadCenTrain(preprocess)
     miaData, miaLabels = data.loadMIAData(preprocess)
         
-    H = model.fit(cenTrain, verbose = True, epochs = 100)
+    H = model.fit(cenTrain, verbose = False, epochs = 100)
     yPred = model.predict(miaData, verbose = False)
     scores = miaEntropy(yPred)
     auc.append(roc_auc_score(miaLabels, scores))
