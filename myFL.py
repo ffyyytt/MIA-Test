@@ -16,7 +16,7 @@ def do_one_round(client_models, server_model, trainLoaders, validLoader, local_e
         client_models[i].fit(trainLoaders[i], validation_data = validLoader, verbose=True, epochs=local_epochs)
     
     aggregate_fn(server_model, client_models)
-    yPred = server_model.predict(validLoader, verbose=False)
+    yPred = client_models[0].predict(validLoader, verbose=False)
     return yPred
 
 def avg_aggregate(server_model, client_models):
