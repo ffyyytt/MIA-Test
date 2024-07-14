@@ -28,7 +28,7 @@ def avg_aggregate(server_model, client_models):
 def ft_aggregate(server_model, client_models):
     server_model.trainable_variables[-1].assign(sum([client_models[j].trainable_variables[-1] for j in range(len(client_models))])/len(client_models))
 
-class ProxSGD(tf.keras.optimizers.Optimizer):
+class ProxSGD(tf.keras.optimizers.SGD):
     """ProxSGD optimizer (tailored for L1-norm regularization and bound constraint), proposed in
     ProxSGD: Training Structured Neural Networks under Regularization and Constraints, ICLR 2020
     URL: https://openreview.net/forum?id=HygpthEtvr
@@ -55,79 +55,47 @@ class ProxSGD(tf.keras.optimizers.Optimizer):
             self.mu              = mu
             self.clip_bounds     = clip_bounds
 
-    def _create_slots(self, var_list):
-        for var in var_list:
-            self.add_slot(var, 'v')
-            self.add_slot(var, 'r')
+    def get_updates(self, loss, params):
+        self.updates = [K.update_add(self.iterations, 1)]
+        grads        = self.get_gradients(loss, params)
+        iteration    = K.cast(self.iterations, K.dtype(self.epsilon_decay))
+        epsilon      = self.epsilon_initial / ((iteration + 4) ** self.epsilon_decay) # the current lr for weights, see (8) of the paper
+        rho          = self.rho_initial / ((iteration + 4) ** self.rho_decay) # the current lr for momentum, see (6) of the paper
+        beta         = self.beta # the learning rate for the squared gradient, see Table I of the paper
+        delta        = 1e-07 # see Table I of the paper
         
-    def _resource_apply_dense(self, grad, var, apply_state=None):
-        var_device, var_dtype = var.device, var.dtype.base_dtype
-        coefficients = apply_state[(var_device, var_dtype)]
-        
-        epsilon = self.epsilon_initial / ((self.iterations + 4) ** self.epsilon_decay)
-        rho = self.rho_initial / ((self.iterations + 4) ** self.rho_decay)
-        beta = self.beta
-        delta = 1e-07
-
-        v = self.get_slot(var, 'v')
-        r = self.get_slot(var, 'r')
-
-        v_new = (1 - rho) * v + rho * grad
-        r_new = beta * r + (1 - beta) * tf.square(grad)
-        tau = tf.sqrt(r_new / (1 - tf.pow(beta, tf.cast(self.iterations + 1, tf.float32)))) + delta
-
-        x_tmp = var - v_new / tau
-
-        if self.mu is not None:
-            mu_normalized = self.mu / tau
-            x_hat = tf.maximum(x_tmp - mu_normalized, 0) - tf.maximum(-x_tmp - mu_normalized, 0)
-        else:
-            x_hat = x_tmp
-
         if self.clip_bounds is not None:
             low = self.clip_bounds[0]
-            up = self.clip_bounds[1]
-            x_hat = tf.clip_by_value(x_hat, low, up)
+            up  = self.clip_bounds[1]
 
-        var_update = var + epsilon * (x_hat - var)
+        vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
+        rs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
+        self.weights = [self.iterations] + vs + rs
 
-        self.iterations.assign_add(1)
-        v.assign(v_new)
-        r.assign(r_new)
-        var.assign(var_update)
+        for x, g, v, r in zip(params, grads, vs, rs):
+            v_new = (1 - rho) * v + rho * g # update momentum according to (6) of the paper
 
-    def update_step(self, grad, var, apply_state=None):
-        var_device, var_dtype = var.device, var.dtype.base_dtype
-        coefficients = apply_state[(var_device, var_dtype)]
+            # define tau (same update rule as ADAM is adopted here, but other rules are also possible)
+            r_new = beta * r + (1 - beta) * K.square(g) #see Table I of the paper
+            tau   = K.sqrt(r_new / (1 - beta ** (iteration + 1))) + delta #see Table I of the paper
 
-        epsilon = self.epsilon_initial / ((self.iterations + 4) ** self.epsilon_decay)
-        rho = self.rho_initial / ((self.iterations + 4) ** self.rho_decay)
-        beta = self.beta
-        delta = 1e-07
-
-        v = self.get_slot(var, 'v')
-        r = self.get_slot(var, 'r')
-
-        v_new = (1 - rho) * v + rho * grad
-        r_new = beta * r + (1 - beta) * tf.square(grad)
-        tau = tf.sqrt(r_new / (1 - tf.pow(beta, tf.cast(self.iterations + 1, tf.float32)))) + delta
-
-        x_tmp = var - v_new / tau
-
-        if self.mu is not None:
-            mu_normalized = self.mu / tau
-            x_hat = tf.maximum(x_tmp - mu_normalized, 0) - tf.maximum(-x_tmp - mu_normalized, 0)
-        else:
-            x_hat = x_tmp
-
-        if self.clip_bounds is not None:
-            low = self.clip_bounds[0]
-            up = self.clip_bounds[1]
-            x_hat = tf.clip_by_value(x_hat, low, up)
-
-        var_update = var + epsilon * (x_hat - var)
-
-        self.iterations.assign_add(1)
-        v.assign(v_new)
-        r.assign(r_new)
-        var.assign(var_update)
+            '''solving the approximation subproblem (tailored to L1 norm and bound constraint)'''
+            x_tmp = x - v_new / tau # the solution to the approximation subproblem without regularization/constraint
+            
+            if self.mu is not None: # apply soft-thresholding due to L1 norm
+                mu_normalized = self.mu / tau
+                x_hat = K.maximum(x_tmp - mu_normalized, 0) - K.maximum(-x_tmp - mu_normalized, 0)
+            else: # if there is no L1 norm
+                x_hat = x_tmp
+                
+            if self.clip_bounds is not None: # apply clipping due to the bound constraint
+                x_hat = K.clip(x_hat, low, up)
+            '''the approximation problem is solved'''
+            
+            x_new = x + epsilon * (x_hat - x) # update the weights according to (8) of the paper
+            
+            '''variable update'''
+            self.updates.append(K.update(v, v_new))
+            self.updates.append(K.update(r, r_new))
+            self.updates.append(K.update(x, x_new))
+        return self.updates
