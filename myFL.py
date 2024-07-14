@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import keras.backend as K
+import tensorflow.keras.backend as K
 from tqdm import *
 
 def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds):
