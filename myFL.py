@@ -5,6 +5,7 @@ def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, a
     for round in trange(rounds):
         yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn)
         print(np.argmax(yPred, axis=1), validLoader.labels.flatten())
+        print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
 def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn):
