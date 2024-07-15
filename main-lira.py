@@ -12,7 +12,7 @@ from sklearn.metrics import roc_auc_score
 strategy, AUTO = getStrategy()
 with strategy.scope():
     model, preprocess = model_factory()
-    model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-4),
+    model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2),
                   loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                   metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
     
@@ -30,7 +30,7 @@ shadowPredicts = []
 for i in trange(data.__N_SHADOW__):
     with strategy.scope():
         model, preprocess = model_factory()
-        model.compile(optimizer = "sgd",
+        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2),
                       loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                       metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
     cenShadowTrain, _, shadowLabel = data.loadCenShadowTrain(i, preprocess)
