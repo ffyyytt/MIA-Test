@@ -11,10 +11,10 @@ import numpy as np
 import tensorflow as tf
 
 from tqdm import *
-from model import *
-from attack import *
-from myFL import *
-import cifar10 as data
+from model.model import *
+from attack.attack import *
+from model.FLStrategy import *
+import data.cifar10 as data
 
 from sklearn.metrics import roc_auc_score
 
@@ -23,7 +23,7 @@ if args.method == 0:
 else:
     aggregate = ft_aggregate
 
-
+print(f"-------------------------------------{args.method}-------------------------------------")
 rounds = 5
 localEpochs = 20
 strategy, AUTO = getStrategy()

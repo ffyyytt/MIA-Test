@@ -27,7 +27,7 @@ def getStrategy():
     AUTO = tf.data.experimental.AUTOTUNE
     return strategy, AUTO
 
-def model_factory(backboneName: str = "resnet50", n_classes: int = 10):
+def model_factory(backboneName: str = "resnet18", n_classes: int = 10):
     inputImage = tf.keras.layers.Input(shape = (None, None, 3), dtype=tf.float32, name = f'image')
     backbone, preprocess = Classifiers.get(backboneName)
     feature = tf.keras.layers.GlobalAveragePooling2D()(backbone(input_shape = (None, None, 3), weights="imagenet", include_top=False)(inputImage))
