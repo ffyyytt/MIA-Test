@@ -23,7 +23,7 @@ if args.method == 0:
 else:
     aggregate = ft_aggregate
 
-print(f"-------------------------------------{args.method}-------------------------------------")
+print(f"-------------------------------------{args.FL}, FT:{args.method}-------------------------------------")
 rounds = 5
 localEpochs = 20
 strategy, AUTO = getStrategy()
