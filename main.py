@@ -15,14 +15,10 @@ auc = []
 for i in trange(10):
     with strategy.scope():
         model, preprocess = model_factory()
-        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2),
-                      loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                      metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
-        
     cenTrain, cenValid = data.loadCenTrain(preprocess)
     miaData, miaLabels = data.loadMIAData(preprocess)
         
-    H = model.fit(cenTrain, verbose = False, epochs = 100)
+    train(strategy, model, cenTrain)
     yPred = model.predict(miaData, verbose = False)
     scores = miaEntropy(yPred)
     auc.append(roc_auc_score(miaLabels, scores))

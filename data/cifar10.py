@@ -3,7 +3,6 @@ import tensorflow as tf
 from keras.datasets import cifar10
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
-
 class TFDataGen(tf.keras.utils.Sequence):
     def __init__(self, images, labels, preprocess, batch_size, **kwargs):
         self.preprocess = preprocess
@@ -22,34 +21,37 @@ class TFDataGen(tf.keras.utils.Sequence):
         label = self.labels[ids]
         return {"image": images}, {"output": label}
 
-
+__FOLDER__ = "cifar10/"
 __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 10
-__N_SPLIT__ = 2
-__N_SHADOW__ = 8
+__N_SHADOW__ = 256
 __N_CLIENTS__ = 4
-__TRAIN_SET__ = [0]
-__MEMBER_SET__ = [0]
-__NON_MEM_SET__ = [1]
 __BATCH_SIZE__ = 32
-def loadCenTrain(preprocess):
-    images, labels = [], []
-    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
-    skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
-        if i in __TRAIN_SET__:
-            images += X[test_index].tolist()
-            labels += Y[test_index].tolist()
-    return TFDataGen(images, labels,  preprocess,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__)
+(X_train_cifar10, Y_train_cifar10), (X_valid_cifar10, Y_valid_cifar10) = cifar10.load_data()
 
-def loadFLTrain(preprocess):
+def load(preprocess):
+    return TFDataGen(X_train_cifar10, Y_train_cifar10,  preprocess,  __BATCH_SIZE__), TFDataGen(X_valid_cifar10, Y_valid_cifar10,  preprocess,  __BATCH_SIZE__)
+
+def loadCenData(idx, preprocess):
     images, labels = [], []
-    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
-    skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
-        if i in __TRAIN_SET__:
-            images += X[test_index].tolist()
-            labels += Y[test_index].tolist()
+    inOutLabels = np.zeros([len(X_train_cifar10)])
+    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__+1, test_size=0.5, random_state=__RANDOM__SEED__)
+    for i, (_, indexes) in enumerate(sss.split(X_train_cifar10, np.argmax(Y_train_cifar10, axis=1))):
+        if i == idx:
+            images += X_train_cifar10[indexes].tolist()
+            labels += Y_train_cifar10[indexes].tolist()
+            inOutLabels[indexes] = 1
+    return TFDataGen(images, labels,  preprocess,  __BATCH_SIZE__), inOutLabels
+
+def loadFedData(idx, preprocess):
+    images, labels = [], []
+    inOutLabels = np.zeros([len(X_train_cifar10)])
+    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__+1, test_size=0.5, random_state=__RANDOM__SEED__)
+    for i, (_, indexes) in enumerate(sss.split(X_train_cifar10, np.argmax(Y_train_cifar10, axis=1))):
+        if i == idx:
+            images += X_train_cifar10[indexes].tolist()
+            labels += Y_train_cifar10[indexes].tolist()
+            inOutLabels[indexes] = 1
 
     images = np.array(images)
     labels = np.array(labels)
@@ -57,44 +59,4 @@ def loadFLTrain(preprocess):
     skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
     for i, (train_index, test_index) in enumerate(skf_fl.split(images, labels)):
         data.append(TFDataGen(images[test_index], labels[test_index],  preprocess,  __BATCH_SIZE__))
-    return data, TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__)
-
-def loadCenShadowTrain(idx, preprocess):
-    images, labels = [], []
-    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
-    shadowLabel = np.zeros([len(X)])
-    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__, test_size=len(__TRAIN_SET__)/__N_SPLIT__, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(sss.split(X, np.argmax(Y, axis=1))):
-        if i == idx:
-            images += X[test_index].tolist()
-            labels += Y[test_index].tolist()
-            shadowLabel[test_index] = 1
-    return TFDataGen(images, labels,  preprocess,  __BATCH_SIZE__), TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__), shadowLabel
-
-def loadFLShadowTrain(idx, preprocess):
-    images, labels = [], []
-    (X, Y), (X_valid, Y_valid) = cifar10.load_data()
-    shadowLabel = np.zeros([len(X)])
-    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__, test_size=len(__TRAIN_SET__)/__N_SPLIT__, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(sss.split(X, np.argmax(Y, axis=1))):
-        if i == idx:
-            images += X[test_index].tolist()
-            labels += Y[test_index].tolist()
-            shadowLabel[test_index] = 1
-
-    images = np.array(images)
-    labels = np.array(labels)
-    data = []
-    skf_fl = StratifiedKFold(n_splits=__N_CLIENTS__, shuffle=True, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(skf_fl.split(images, labels)):
-        data.append(TFDataGen(images[test_index], labels[test_index],  preprocess,  __BATCH_SIZE__))
-    return data, TFDataGen(X_valid, Y_valid,  preprocess,  __BATCH_SIZE__), shadowLabel
-
-def loadMIAData(preprocess):
-    (X, Y), _ = cifar10.load_data()
-    labels = np.zeros_like(Y)
-    skf = StratifiedKFold(n_splits=__N_SPLIT__, shuffle=True, random_state=__RANDOM__SEED__)
-    for i, (train_index, test_index) in enumerate(skf.split(X, Y)):
-        if i in __TRAIN_SET__:
-            labels[test_index] = 1
-    return TFDataGen(X, Y, preprocess,  __BATCH_SIZE__), labels
+    return data, inOutLabels
