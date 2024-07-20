@@ -21,7 +21,7 @@ class TFDataGen(tf.keras.utils.Sequence):
         label = self.labels[ids]
         return {"image": images}, {"output": label}
 
-__FOLDER__ = "cifar10/"
+__FOLDER__ = "cifar10"
 __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 10
 __N_SHADOW__ = 256
