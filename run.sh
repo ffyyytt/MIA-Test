@@ -10,7 +10,8 @@
 #SBATCH --nodelist sn1, sw2
 
 conda activate myenv
-for i in {0..256}
+sequence=$(seq 0 256 | shuf)
+for i in $sequence
 do
     python3 train.py -data $i
 done
