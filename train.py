@@ -27,12 +27,12 @@ with strategy.scope():
 trainData, inOutLabels = data.loadCenData(args.data, preprocess)
 model.fit(trainData, verbose = args.verbose, epochs = 100)
 
-miaData, validData = data.load()
+miaData, validData = data.load(preprocess)
 validPred = model.predict(validData, verbose = args.verbose)
-print("Validation:", np.mean(validData.labels == np.argmax(validPred, axis = 1)))
+print("Validation:", np.mean(validData.labels.flatten() == np.argmax(validPred, axis = 1)))
 
 MIAPred = model.predict(miaData, verbose = args.verbose)
-print("MIA:", np.mean(miaData.labels == np.argmax(MIAPred, axis = 1)))
+print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
 with open(f'cen_{args.data}.pickle', 'wb') as handle:
     pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
