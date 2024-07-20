@@ -35,5 +35,5 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.data}.pickle'):
     MIAPred = model.predict(miaData, verbose = args.verbose)
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
-    with open(f'{data.__FOLDER__}/cen/cen_{args.data}.pickle', 'wb') as handle:
+    with open(f'{data.__FOLDER__}/cen/{args.data}.pickle', 'wb') as handle:
         pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
