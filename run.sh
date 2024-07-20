@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-gpu 9
 #SBATCH --mem-per-cpu 4G
 #SBATCH --mail-type FAIL,END
-#SBATCH --nodelist sn1
+#SBATCH --nodelist sw2
 
 conda activate myenv
 sequence=$(seq 0 256 | shuf)
