@@ -5,6 +5,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 parser = argparse.ArgumentParser("YOLO")
 parser.add_argument("-data", help="Data index", nargs='?', type=int, default=0)
+parser.add_argument("-verbose", help="Verbose", nargs='?', type=bool, default=False)
 args = parser.parse_args()
 
 import tensorflow as tf
@@ -24,13 +25,13 @@ with strategy.scope():
                     metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
 trainData, inOutLabels = data.loadCenData(args.data, preprocess)
-model.fit(trainData, verbose = False, epochs = 100)
+model.fit(trainData, verbose = args.verbose, epochs = 100)
 
 miaData, validData = data.load()
-validPred = model.predict(validData, verbose = False)
+validPred = model.predict(validData, verbose = args.verbose)
 print("Validation:", np.mean(validData.labels == np.argmax(validPred, axis = 1)))
 
-MIAPred = model.predict(miaData, verbose = False)
+MIAPred = model.predict(miaData, verbose = args.verbose)
 print("MIA:", np.mean(miaData.labels == np.argmax(MIAPred, axis = 1)))
 
 with open(f'cen_{args.data}.pickle', 'wb') as handle:
