@@ -39,6 +39,8 @@ def _loadAID():
         labels.append([labelset[file.split("/")[-2]]])
     imagePaths = np.array(imagePaths)
     labels = np.array(labels)
+    print(f"Number of image paths: {len(imagePaths)}")
+    print(f"Number of labels: {len(labels)}")
     return train_test_split(imagePaths, labels, test_size=0.3, random_state=__RANDOM__SEED__)
 
 X_train_aid, X_valid_aid, Y_train_aid, Y_valid_aid = _loadAID()
