@@ -12,7 +12,7 @@ def miaEntropy(probs):
 def _log_value(probs, small_value=1e-30):
     return -np.log(np.maximum(probs, small_value))
 
-def _m_entr_comp(probs, true_labels):
+def miaEntropyMod(probs, true_labels):
     log_probs = _log_value(probs)
     reverse_probs = 1-probs
     log_reverse_probs = _log_value(reverse_probs)
