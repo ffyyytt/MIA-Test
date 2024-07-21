@@ -20,7 +20,7 @@ def miaEntropyMod(probs, true_labels):
     modified_probs[range(true_labels.size), true_labels] = reverse_probs[range(true_labels.size), true_labels]
     modified_log_probs = np.copy(log_reverse_probs)
     modified_log_probs[range(true_labels.size), true_labels] = log_probs[range(true_labels.size), true_labels]
-    return np.sum(np.multiply(modified_probs, modified_log_probs),axis=1)
+    return 1-np.sum(np.multiply(modified_probs, modified_log_probs),axis=1)
 
 def probabilityNormalDistribution(data, p, eps=1e-6):
     if len(data) == 0:
