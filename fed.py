@@ -39,9 +39,9 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data
     strategy, AUTO = getStrategy()
     clientModels = []
     with strategy.scope():
-        serverModel, preprocess = model_factory()
+        serverModel, preprocess = model_factory(n_classes=data.__N_CLASSES__)
         for i in range(data.__N_CLIENTS__):
-            clientModels.append(model_factory()[0])
+            clientModels.append(model_factory(n_classes=data.__N_CLASSES__)[0])
 
     miaData, validData = data.load(preprocess)
     trainData, inOutLabels = data.loadFedData(args.data, preprocess)
