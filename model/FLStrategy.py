@@ -39,6 +39,18 @@ def ft_aggregate(server_model, client_models):
     for j in range(len(client_models)):
         client_models[j].trainable_variables[-1].assign(server_model.trainable_variables[-1])
 
+def doFT(model, data):
+    modelFT = tf.keras.models.Model(inputs = model.inputs,
+                                    outputs = [model.get_layer('feature').output])
+    weight = []
+    features = model.predict(data)
+    labels = data.labels.flatten()
+    for i in range(len(set(labels))):
+        weight.append(np.mean(features[np.where(labels==i)], axis=0))
+    print(model.trainable_variables[-1])
+    print(weight)
+    model.trainable_variables[-1].assign(np.array(weight))
+
 class ProxSGD(tf.keras.optimizers.SGD):
     """ProxSGD optimizer (tailored for L1-norm regularization and bound constraint), proposed in
     ProxSGD: Training Structured Neural Networks under Regularization and Constraints, ICLR 2020

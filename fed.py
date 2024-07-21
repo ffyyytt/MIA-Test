@@ -45,6 +45,10 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.inde
 
     miaData, validData = data.load(preprocess)
     trainData, inOutLabels = data.loadFedData(args.index, preprocess)
+
+    if args.method == 1:
+        for i in range(len(clientModels)):
+            doFT(clientModels[i], trainData[i])
     
     doFL(strategy, clientModels, serverModel, trainData, validData, args.epochs, aggregate, args.rounds, args.FL)
 
