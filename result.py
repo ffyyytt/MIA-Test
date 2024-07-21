@@ -10,7 +10,7 @@ entropyModAUC = []
 predictions = []
 inOutLabels = []
 (X_train, Y_train), (X_valid, Y_valid) = cifar10.load_data()
-Y_train = Y_train.flatten()
+Y_train_flatten = Y_train.flatten()
 files = glob.glob("cifar10/cen/*.pickle")
 print("n_shadow:", len(files))
 for f in tqdm(files):
@@ -18,7 +18,7 @@ for f in tqdm(files):
     predictions.append(data[0])
     inOutLabels.append(data[1])
     entropyScores = miaEntropy(data[0])
-    entropyModScores = miaEntropyMod(data[0], Y_train)
+    entropyModScores = miaEntropyMod(data[0], Y_train_flatten)
     entropyAUC.append(roc_auc_score(data[1], entropyScores))
     entropyModAUC.append(roc_auc_score(data[1], entropyModScores))
 
@@ -29,5 +29,5 @@ predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
 
 print(predictions[0, Y_train])
-LiRAScores = LiRAOnline(predictions[0, :, Y_train], predictions[1:, :, Y_train], inOutLabels[1:], eps=1e-6)
+LiRAScores = LiRAOnline(predictions[0, Y_train], predictions[1:, Y_train], inOutLabels[1:], eps=1e-6)
 print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))
