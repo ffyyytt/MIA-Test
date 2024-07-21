@@ -32,6 +32,8 @@ inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
 inSet = predictions[inIdx].flatten()
 outSet = predictions[outIdx].flatten()
+print(inSet.shape)
+print(outSet.shape)
 inScores = probabilityNormalDistribution(inSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
 outScores = probabilityNormalDistribution(outSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
 LiRAScores = [inScore/outScore for inScore, outScore in zip(inScores, outScores)]
