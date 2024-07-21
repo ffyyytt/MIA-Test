@@ -27,7 +27,7 @@ if args.method == 0:
 else:
     aggregate = ft_aggregate
 
-if not os.path.isfile(f'{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle'):
+if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle"):
     print(f"{args.FL}{'FT'*args.method}: {args.data} --------------------------------------")
     strategy, AUTO = getStrategy()
     clientModels = []
@@ -47,5 +47,5 @@ if not os.path.isfile(f'{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data
     MIAPred = clientModels[0].predict(miaData, verbose = args.verbose)
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
-    with open(f'{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle', 'wb') as handle:
+    with open(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle", 'wb') as handle:
         pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
