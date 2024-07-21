@@ -30,8 +30,8 @@ inOutLabels = np.array(inOutLabels)
 
 inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
-inSet = predictions[inIdx]
-outSet = predictions[outIdx]
+inSet = predictions[inIdx][np.arange(Y_train.shape[0]), Y_train_flatten]
+outSet = predictions[outIdx][np.arange(Y_train.shape[0]), Y_train_flatten]
 print(inSet.shape)
 print(outSet.shape)
 inScores = probabilityNormalDistribution(inSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
