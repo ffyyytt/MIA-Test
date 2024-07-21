@@ -28,7 +28,5 @@ print("Entropy Mod:", np.mean(entropyModAUC))
 predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
 
-print(Y_train)
-print(inOutLabels[1:].shape)
 LiRAScores = LiRAOnline(predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten], predictions[1:][:, np.arange(Y_train.shape[0]), Y_train_flatten], inOutLabels[1:], eps=1e-6)
 print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))

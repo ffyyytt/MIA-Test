@@ -30,14 +30,14 @@ def probabilityNormalDistribution(data, p, eps=1e-6):
     return scipy.stats.norm.cdf((p - mean) / std)
 
 def _LiRAOnline(prob, shadowPredicts, shadowLabels, eps=1e-6):
-    truthIdxs = np.where(shadowLabels==1)[0]
-    falseIdxs = np.where(shadowLabels==0)[0]
-    return probabilityNormalDistribution(shadowPredicts[truthIdxs], prob)/max(probabilityNormalDistribution(shadowPredicts[falseIdxs], prob), eps)
+    truthIdxs = np.where(shadowLabels==1)
+    falseIdxs = np.where(shadowLabels==0)
+    return probabilityNormalDistribution(shadowPredicts[truthIdxs].flatten(), prob)/max(probabilityNormalDistribution(shadowPredicts[falseIdxs].flatten(), prob), eps)
 
 def LiRAOnline(probs, shadowPredicts, shadowLabels, eps=1e-6):
     results = [0]*len(probs)
     for i in trange(len(probs)):
-        results[i] = _LiRAOnline(probs[i], shadowPredicts[:, i], shadowLabels[:, i], eps)
+        results[i] = _LiRAOnline(probs[i], shadowPredicts, shadowLabels, eps)
     return np.array(results)
 
 def TPRatFPR(y_true, y_score, target_fpr = 0.001):
