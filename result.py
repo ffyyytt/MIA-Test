@@ -16,4 +16,4 @@ for f in files:
     entropyScores = miaEntropy(data[0])
     entropyModScores = miaEntropyMod(data[0], Y_train)
     print("Entropy:", roc_auc_score(data[1], entropyScores))
-    print("Entropy Mod:", roc_auc_score(data[1], entropyScores))
+    print("Entropy Mod:", roc_auc_score(data[1], entropyModScores))
