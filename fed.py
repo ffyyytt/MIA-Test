@@ -40,7 +40,7 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data
     miaData, validData = data.load(preprocess)
     trainData, inOutLabels = data.loadFedData(args.data, preprocess)
     
-    doFL(clientModels, serverModel, trainData, validData, args.epochs, aggregate, args.rounds, args.FL)
+    doFL(strategy, clientModels, serverModel, trainData, validData, args.epochs, aggregate, args.rounds, args.FL)
 
     validPred = clientModels[0].predict(validData, verbose = args.verbose)
     print("Validation:", np.mean(validData.labels.flatten() == np.argmax(validPred, axis = 1)))

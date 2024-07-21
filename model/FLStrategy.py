@@ -3,22 +3,23 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from tqdm import *
 
-def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer):
+def doFL(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer):
     for round in trange(rounds):
-        yPred = do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer)
+        yPred = do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer)
         print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
-def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
+def do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
     aggregate_fn(server_model, client_models)
-    for i in range(len(client_models)):
-        if optimizer == "FedProx":
-            _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
-        else:
-            _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
-        client_models[i].compile(optimizer = _optimizer,
-                                    loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                                    metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
+    with strategy.scope():
+        for i in range(len(client_models)):
+            if optimizer == "FedProx":
+                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
+            else:
+                _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
+            client_models[i].compile(optimizer = _optimizer,
+                                        loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                                        metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
     for i in range(len(client_models)):
         client_models[i].fit(trainLoaders[i], verbose=False, epochs=local_epochs)
