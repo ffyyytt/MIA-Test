@@ -15,7 +15,7 @@ class TFDataGen(tf.keras.utils.Sequence):
         super().__init__(**kwargs)
 
     def __len__(self):
-        return len(self.images) // self.batch_size + int(len(self.images) % self.batch_size != 0)
+        return len(self.imagePaths) // self.batch_size + int(len(self.imagePaths) % self.batch_size != 0)
     
     def readImages(self, ids):
         images = []
