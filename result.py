@@ -4,16 +4,22 @@ from attack.attack import *
 from keras.datasets import cifar10
 from sklearn.metrics import roc_auc_score
 
+entropyAUC = []
+entropyModAUC = []
 predictions = []
 inOutLabels = []
 (X_train, Y_train), (X_valid, Y_valid) = cifar10.load_data()
 Y_train = Y_train.flatten()
 files = glob.glob("cifar10/cen/*.pickle")
+print("n_shadow:", len(files))
 for f in files:
     data = pickle.load(open(f,'rb'))
     predictions.append(data[0])
     inOutLabels.append(data[1])
     entropyScores = miaEntropy(data[0])
     entropyModScores = miaEntropyMod(data[0], Y_train)
-    print("Entropy:", roc_auc_score(data[1], entropyScores))
-    print("Entropy Mod:", roc_auc_score(data[1], entropyModScores))
+    entropyAUC.append(roc_auc_score(data[1], entropyScores))
+    entropyModAUC.append(roc_auc_score(data[1], entropyModScores))
+
+print("Entropy:", np.mean(entropyAUC))
+print("Entropy Mod:", np.mean(entropyModAUC))
