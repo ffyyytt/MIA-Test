@@ -9,6 +9,7 @@ parser.add_argument("-method", help="0: Federated Learning, 1: Federated Feature
 parser.add_argument("-rounds", help="Rounds", nargs='?', type=int, default=5)
 parser.add_argument("-epochs", help="Local epochs", nargs='?', type=int, default=20)
 parser.add_argument("-data", help="Data index", nargs='?', type=int, default=0)
+parser.add_argument("-verbose", help="Verbose", nargs='?', type=bool, default=False)
 args = parser.parse_args()
 
 import numpy as np
