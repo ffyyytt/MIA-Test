@@ -1,4 +1,5 @@
 import os
+import cv2
 import glob
 import numpy as np
 import tensorflow as tf
@@ -30,6 +31,7 @@ __N_CLIENTS__ = 4
 __BATCH_SIZE__ = 32
 
 def _loadAID():
+    images = []
     labels = []
     labelset = {}
     imagePaths = glob.glob(os.path.expanduser("~")+"/data/AID/*/*")
@@ -37,9 +39,10 @@ def _loadAID():
         if file.split("/")[-2] not in labelset:
             labelset[file.split("/")[-2]] = len(labelset)
         labels.append([labelset[file.split("/")[-2]]])
-    imagePaths = np.array(imagePaths)
+        images.append(cv2.imread(file,mode='RGB'))
+    images = np.array(images)
     labels = np.array(labels)
-    return train_test_split(imagePaths, labels, test_size=0.3, random_state=__RANDOM__SEED__)
+    return train_test_split(images, labels, test_size=0.3, random_state=__RANDOM__SEED__)
 
 X_train_aid, X_valid_aid, Y_train_aid, Y_valid_aid = _loadAID()
 
