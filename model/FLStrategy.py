@@ -14,7 +14,7 @@ def do_one_round(strategy, client_models, server_model, trainLoaders, validLoade
     with strategy.scope():
         for i in range(len(client_models)):
             if optimizer == "FedProx":
-                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
+                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-2)
             else:
                 _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
             client_models[i].compile(optimizer = _optimizer,
