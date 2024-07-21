@@ -27,7 +27,7 @@ print("Entropy Mod:", np.mean(entropyModAUC))
 
 predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
-predictions = predictions[:, np.arange(Y_train.shape[0]), Y_train_flatten]
+predictions = np.max(predictions, axis=2)
 inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
 inSet = predictions[inIdx]
