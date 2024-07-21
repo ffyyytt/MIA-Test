@@ -13,5 +13,5 @@ conda activate myenv
 sequence=$(seq 0 256 | shuf)
 for i in $sequence
 do
-    python3 train.py -data $i
+    python3 train.py -index $i -dataset $1
 done
