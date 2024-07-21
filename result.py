@@ -27,14 +27,14 @@ print("Entropy Mod:", np.mean(entropyModAUC))
 
 predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
-
+predictions = predictions[:, np.arange(Y_train.shape[0]), Y_train_flatten]
 inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
-inSet = predictions[inIdx][np.arange(Y_train.shape[0]), Y_train_flatten]
-outSet = predictions[outIdx][np.arange(Y_train.shape[0]), Y_train_flatten]
+inSet = predictions[inIdx]
+outSet = predictions[outIdx]
 print(inSet.shape)
 print(outSet.shape)
-inScores = probabilityNormalDistribution(inSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
-outScores = probabilityNormalDistribution(outSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
+inScores = probabilityNormalDistribution(inSet, predictions[0])
+outScores = probabilityNormalDistribution(outSet, predictions[0])
 LiRAScores = [inScore/outScore for inScore, outScore in zip(inScores, outScores)]
 print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))
