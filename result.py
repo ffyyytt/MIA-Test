@@ -32,5 +32,7 @@ inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
 inSet = predictions[inIdx].flatten()
 outSet = predictions[outIdx].flatten()
-LiRAScores = [probabilityNormalDistribution(inSet, probs)/probabilityNormalDistribution(outSet, probs) for probs in tqdm(predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])]
+inScores = probabilityNormalDistribution(inSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
+outScores = probabilityNormalDistribution(outSet, predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])
+LiRAScores = [inScore/outScore for inScore, outScore in zip(inScores, outScores)]
 print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))
