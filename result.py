@@ -28,3 +28,4 @@ predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
 
 LiRAScores = LiRAOnline(np.max(predictions[0], axis=1), np.max(predictions[1:], axis=2), inOutLabels[1:], eps=1e-6)
+print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))
