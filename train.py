@@ -28,7 +28,7 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
     strategy, AUTO = getStrategy()
     with strategy.scope():
         model, preprocess = model_factory()
-        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2),
+        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-4),
                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
