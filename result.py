@@ -32,8 +32,8 @@ inIdx = np.where(inOutLabels==1)
 outIdx = np.where(inOutLabels==0)
 inSet = predictions[inIdx]
 outSet = predictions[outIdx]
-print(inSet)
-print(outSet)
+print(inSet, np.mean(inSet))
+print(outSet, np.mean(outSet))
 inScores = probabilityNormalDistribution(inSet, predictions[0])
 outScores = probabilityNormalDistribution(outSet, predictions[0])
 LiRAScores = [inScore/outScore for inScore, outScore in zip(inScores, outScores)]
