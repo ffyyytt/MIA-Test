@@ -10,30 +10,33 @@ def doFL(client_models, server_model, trainLoaders, validLoader, local_epochs, a
     return yPred
 
 def do_one_round(client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
-    for i in range(len(server_model.trainable_variables)):
-        for j in range(len(client_models)):
-            if optimizer == "FedProx":
-                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-2)
-            else:
-                _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
-            client_models[j].compile(optimizer = _optimizer,
-                                     loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
-                                     metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
-            client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
+    aggregate_fn(server_model, client_models)
+    for i in range(len(client_models)):
+        if optimizer == "FedProx":
+            _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
+        else:
+            _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
+        client_models[i].compile(optimizer = _optimizer,
+                                    loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
+                                    metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
     for i in range(len(client_models)):
         client_models[i].fit(trainLoaders[i], verbose=False, epochs=local_epochs)
-    
-    aggregate_fn(server_model, client_models)
+
     yPred = server_model.predict(validLoader, verbose=False)
     return yPred
 
 def avg_aggregate(server_model, client_models):
     for i in range(len(server_model.trainable_variables)):
         server_model.trainable_variables[i].assign(sum([client_models[j].trainable_variables[i] for j in range(len(client_models))])/len(client_models))
+    for i in range(len(server_model.trainable_variables)):
+        for j in range(len(client_models)):
+            client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
 
 def ft_aggregate(server_model, client_models):
     server_model.trainable_variables[-1].assign(sum([client_models[j].trainable_variables[-1] for j in range(len(client_models))])/len(client_models))
+    for j in range(len(client_models)):
+        client_models[j].trainable_variables[-1].assign(server_model.trainable_variables[-1])
 
 class ProxSGD(tf.keras.optimizers.SGD):
     """ProxSGD optimizer (tailored for L1-norm regularization and bound constraint), proposed in
