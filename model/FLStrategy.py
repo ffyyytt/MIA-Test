@@ -13,7 +13,7 @@ def do_one_round(client_models, server_model, trainLoaders, validLoader, local_e
     for i in range(len(server_model.trainable_variables)):
         for j in range(len(client_models)):
             if optimizer == "FedProx":
-                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
+                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-2)
             else:
                 _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
             client_models[j].compile(optimizer = _optimizer,
