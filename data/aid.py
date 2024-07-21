@@ -36,12 +36,15 @@ def _loadAID():
     labelset = {}
     imagePaths = glob.glob(os.path.expanduser("~")+"/data/AID/*/*")
     for file in imagePaths:
-        if file.split("/")[-2] not in labelset:
-            labelset[file.split("/")[-2]] = len(labelset)
-        labels.append([labelset[file.split("/")[-2]]])
-        image = cv2.imread(file)   # reads an image in the BGR format
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)   # BGR -> RGB
-        images.append(image)
+        try:
+            if file.split("/")[-2] not in labelset:
+                labelset[file.split("/")[-2]] = len(labelset)
+            image = cv2.imread(file)   # reads an image in the BGR format
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)   # BGR -> RGB
+            images.append(image)
+            labels.append([labelset[file.split("/")[-2]]])
+        except:
+            pass
     images = np.array(images)
     labels = np.array(labels)
     return train_test_split(images, labels, test_size=0.3, random_state=__RANDOM__SEED__)
