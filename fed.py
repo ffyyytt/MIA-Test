@@ -34,8 +34,8 @@ if args.method == 0:
 else:
     aggregate = ft_aggregate
 
-if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle"):
-    print(f"{args.FL}{'FT'*args.method}: {args.data} --------------------------------------")
+if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.index}.pickle"):
+    print(f"{args.FL}{'FT'*args.method}: {args.index} --------------------------------------")
     strategy, AUTO = getStrategy()
     clientModels = []
     with strategy.scope():
@@ -44,7 +44,7 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data
             clientModels.append(model_factory(n_classes=data.__N_CLASSES__)[0])
 
     miaData, validData = data.load(preprocess)
-    trainData, inOutLabels = data.loadFedData(args.data, preprocess)
+    trainData, inOutLabels = data.loadFedData(args.index, preprocess)
     
     doFL(strategy, clientModels, serverModel, trainData, validData, args.epochs, aggregate, args.rounds, args.FL)
 
@@ -54,5 +54,5 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data
     MIAPred = clientModels[0].predict(miaData, verbose = args.verbose)
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
-    with open(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.data}.pickle", 'wb') as handle:
+    with open(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.index}.pickle", 'wb') as handle:
         pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
