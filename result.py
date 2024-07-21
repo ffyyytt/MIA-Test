@@ -28,5 +28,9 @@ print("Entropy Mod:", np.mean(entropyModAUC))
 predictions = np.array(predictions)
 inOutLabels = np.array(inOutLabels)
 
-LiRAScores = LiRAOnline(predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten], predictions[1:][:, np.arange(Y_train.shape[0]), Y_train_flatten], inOutLabels[1:], eps=1e-6)
+inIdx = np.where(inOutLabels==1)
+outIdx = np.where(inOutLabels==0)
+inSet = predictions[inIdx].flatten()
+outSet = predictions[outIdx].flatten()
+LiRAScores = [probabilityNormalDistribution(inSet, probs)/probabilityNormalDistribution(outSet, probs) for probs in tqdm(predictions[0][np.arange(Y_train.shape[0]), Y_train_flatten])]
 print("Entropy Mod:", roc_auc_score(data[1], LiRAScores))
