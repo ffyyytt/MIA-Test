@@ -39,7 +39,9 @@ def _loadAID():
         if file.split("/")[-2] not in labelset:
             labelset[file.split("/")[-2]] = len(labelset)
         labels.append([labelset[file.split("/")[-2]]])
-        images.append(cv2.imread(file,mode='RGB'))
+        image = cv2.imread(file)   # reads an image in the BGR format
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)   # BGR -> RGB
+        images.append(image)
     images = np.array(images)
     labels = np.array(labels)
     return train_test_split(images, labels, test_size=0.3, random_state=__RANDOM__SEED__)
