@@ -39,7 +39,7 @@ __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 30
 __N_SHADOW__ = 256
 __N_CLIENTS__ = 4
-__BATCH_SIZE__ = 512
+__BATCH_SIZE__ = 32
 
 def _loadAID():
     labels = []
