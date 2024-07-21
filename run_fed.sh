@@ -12,5 +12,5 @@ conda activate myenv
 sequence=$(seq 0 256 | shuf)
 for i in $sequence
 do
-    python3 fed.py -index $i -dataset $1
+    python3 fed.py -index $i -dataset $1 -FL $2 -method $3
 done
