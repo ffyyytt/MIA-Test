@@ -32,15 +32,13 @@ __BATCH_SIZE__ = 32
 def _loadAID():
     labels = []
     labelset = {}
-    imagePaths = glob.glob(os.path.expanduser("~")+"/datasets/AID/*/*")
+    imagePaths = glob.glob(os.path.expanduser("~")+"/data/AID/*/*")
     for file in imagePaths:
         if file.split("/")[-2] not in labelset:
             labelset[file.split("/")[-2]] = len(labelset)
         labels.append([labelset[file.split("/")[-2]]])
     imagePaths = np.array(imagePaths)
     labels = np.array(labels)
-    print(f"Number of image paths: {len(imagePaths)}")
-    print(f"Number of labels: {len(labels)}")
     return train_test_split(imagePaths, labels, test_size=0.3, random_state=__RANDOM__SEED__)
 
 X_train_aid, X_valid_aid, Y_train_aid, Y_valid_aid = _loadAID()
