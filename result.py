@@ -1,5 +1,6 @@
 import glob
 import pickle
+from tqdm import *
 from attack.attack import *
 from keras.datasets import cifar10
 from sklearn.metrics import roc_auc_score
@@ -12,7 +13,7 @@ inOutLabels = []
 Y_train = Y_train.flatten()
 files = glob.glob("cifar10/cen/*.pickle")
 print("n_shadow:", len(files))
-for f in files:
+for f in tqdm(files):
     data = pickle.load(open(f,'rb'))
     predictions.append(data[0])
     inOutLabels.append(data[1])
