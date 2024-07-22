@@ -35,11 +35,9 @@ def avg_aggregate(server_model, client_models):
             client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
 
 def ft_aggregate(server_model, client_models):
-    for i in [-1, -2]:
-        server_model.trainable_variables[i].assign(sum([client_models[j].trainable_variables[i] for j in range(len(client_models))])/len(client_models))
-    for i in [-1, -2]:
-        for j in range(len(client_models)):
-            client_models[j].trainable_variables[i].assign(server_model.trainable_variables[i])
+    server_model.trainable_variables[-1].assign(sum([client_models[j].trainable_variables[-1] for j in range(len(client_models))])/len(client_models))
+    for j in range(len(client_models)):
+        client_models[j].trainable_variables[-1].assign(server_model.trainable_variables[-1])
 
 def doFT(model, data):
     modelFT = tf.keras.models.Model(inputs = model.inputs,
