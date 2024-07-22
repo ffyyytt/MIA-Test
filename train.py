@@ -45,4 +45,4 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
     with open(f'{data.__FOLDER__}/cen/{args.index}.pickle', 'wb') as handle:
-        pickle.dump([H["accuracy"], MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([H["sparse_categorical_accuracy"], MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)

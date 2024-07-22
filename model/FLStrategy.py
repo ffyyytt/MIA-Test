@@ -24,7 +24,7 @@ def do_one_round(strategy, client_models, server_model, trainLoaders, validLoade
     H = []
     for i in range(len(client_models)):
         Hi = client_models[i].fit(trainLoaders[i], verbose=(args.verbose and i==0), epochs=local_epochs)
-        H.append(Hi.history['accuracy'])
+        H.append(Hi.history['sparse_categorical_accuracy'])
     
     return np.mean(H, axis=0).tolist()
 
