@@ -43,7 +43,7 @@ def doFT(model, data):
     modelFT = tf.keras.models.Model(inputs = model.inputs,
                                     outputs = [model.get_layer('feature').output])
     weight = []
-    features = model.predict(data)
+    features = modelFT.predict(data)
     labels = data.labels.flatten()
     for i in range(len(set(labels))):
         weight.append(np.mean(features[np.where(labels==i)], axis=0))
