@@ -9,7 +9,7 @@
 #SBATCH --mail-type FAIL,END
 
 conda activate myenv
-sequence=$(seq 0 256 | shuf)
+sequence=$(seq 0 31 | shuf)
 for i in $sequence
 do
     python3 fed.py -index $i -dataset $1 -FL $2 -method $3

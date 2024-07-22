@@ -10,7 +10,7 @@
 #SBATCH --nodelist sn1
 
 conda activate myenv
-sequence=$(seq 0 256 | shuf)
+sequence=$(seq 0 31 | shuf)
 for i in $sequence
 do
     python3 train.py -index $i -dataset $1

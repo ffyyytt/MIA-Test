@@ -24,7 +24,7 @@ class TFDataGen(tf.keras.utils.Sequence):
 __FOLDER__ = "cifar10"
 __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 10
-__N_SHADOW__ = 256
+__N_SHADOW__ = 32
 __N_CLIENTS__ = 4
 __BATCH_SIZE__ = 32
 (X_train_cifar10, Y_train_cifar10), (X_valid_cifar10, Y_valid_cifar10) = cifar10.load_data()
@@ -35,7 +35,7 @@ def load(preprocess):
 def loadCenData(idx, preprocess):
     images, labels = [], []
     inOutLabels = np.zeros([len(X_train_cifar10)])
-    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__+1, test_size=0.5, random_state=__RANDOM__SEED__)
+    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__, test_size=0.5, random_state=__RANDOM__SEED__)
     for i, (_, indexes) in enumerate(sss.split(X_train_cifar10, np.argmax(Y_train_cifar10, axis=1))):
         if i == idx:
             images += X_train_cifar10[indexes].tolist()
@@ -46,7 +46,7 @@ def loadCenData(idx, preprocess):
 def loadFedData(idx, preprocess):
     images, labels = [], []
     inOutLabels = np.zeros([len(X_train_cifar10)])
-    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__+1, test_size=0.5, random_state=__RANDOM__SEED__)
+    sss = StratifiedShuffleSplit(n_splits=__N_SHADOW__, test_size=0.5, random_state=__RANDOM__SEED__)
     for i, (_, indexes) in enumerate(sss.split(X_train_cifar10, np.argmax(Y_train_cifar10, axis=1))):
         if i == idx:
             images += X_train_cifar10[indexes].tolist()
