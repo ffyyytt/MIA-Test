@@ -47,8 +47,6 @@ def doFT(model, data):
     labels = data.labels.flatten()
     for i in range(len(set(labels))):
         weight.append(np.mean(features[np.where(labels==i)], axis=0))
-    print(model.trainable_variables[-1])
-    print(weight)
     model.trainable_variables[-1].assign(np.array(weight))
 
 class ProxSGD(tf.keras.optimizers.SGD):

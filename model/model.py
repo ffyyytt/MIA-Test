@@ -34,7 +34,7 @@ class Cosine(tf.keras.layers.Layer):
         self.num_classes = num_classes
 
     def build(self, input_shape):
-        self.W = self.add_weight(shape=(self.num_classes, input_shape[0][-1]), initializer='glorot_uniform', trainable=True)
+        self.W = self.add_weight(shape=(self.num_classes, input_shape[-1]), initializer='glorot_uniform', trainable=True)
 
     def cosine(self, feature):
         x = tf.nn.l2_normalize(feature, axis=1)
