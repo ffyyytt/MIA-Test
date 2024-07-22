@@ -3,13 +3,13 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from tqdm import *
 
-def doFL(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer):
+def doFL(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer, args):
     for round in trange(rounds):
-        yPred = do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer)
+        yPred = do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer, args)
         print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
     return yPred
 
-def do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer):
+def do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer, args):
     aggregate_fn(server_model, client_models)
     with strategy.scope():
         for i in range(len(client_models)):
@@ -22,7 +22,7 @@ def do_one_round(strategy, client_models, server_model, trainLoaders, validLoade
                                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
     for i in range(len(client_models)):
-        client_models[i].fit(trainLoaders[i], verbose=False, epochs=local_epochs)
+        client_models[i].fit(trainLoaders[i], verbose=(args.verbose and i==0), epochs=local_epochs)
 
     yPred = server_model.predict(validLoader, verbose=False)
     return yPred
