@@ -60,10 +60,10 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.inde
         print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
     else:
         modelFT, knn = buildkNN(clientModels[0], trainData)
-        validPred = knn.predict(modelFT.predict(validData, verbose = args.verbose))
+        validPred = knn.predict_proba(modelFT.predict(validData, verbose = args.verbose))
         print("Validation:", np.mean(validData.labels.flatten() == np.argmax(validPred, axis = 1)))
 
-        MIAPred = knn.predict(modelFT.predict(miaData, verbose = args.verbose))
+        MIAPred = knn.predict_proba(modelFT.predict(miaData, verbose = args.verbose))
         print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
     with open(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.index}.pickle", 'wb') as handle:
