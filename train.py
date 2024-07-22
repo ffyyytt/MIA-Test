@@ -34,10 +34,11 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
-    trainData, inOutLabels = data.loadCenData(args.index, preprocess)
-    H = model.fit(trainData, verbose = args.verbose, epochs = data.__ROUNDS__*data.__LOCALEPOCHS__)
-
     miaData, validData = data.load(preprocess)
+    trainData, inOutLabels = data.loadCenData(args.index, preprocess)
+    H = model.fit(trainData, validation_data = validData, verbose = args.verbose, epochs = data.__ROUNDS__*data.__LOCALEPOCHS__)
+
+    
     validPred = model.predict(validData, verbose = args.verbose)
     print("Validation:", np.mean(validData.labels.flatten() == np.argmax(validPred, axis = 1)))
 
@@ -45,4 +46,4 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
     with open(f'{data.__FOLDER__}/cen/{args.index}.pickle', 'wb') as handle:
-        pickle.dump([H["sparse_categorical_accuracy"], MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([H["val_sparse_categorical_accuracy"], MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)

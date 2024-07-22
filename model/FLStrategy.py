@@ -23,8 +23,8 @@ def do_one_round(strategy, client_models, server_model, trainLoaders, validLoade
                                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
     H = []
     for i in range(len(client_models)):
-        Hi = client_models[i].fit(trainLoaders[i], verbose=(args.verbose and i==0), epochs=local_epochs)
-        H.append(Hi.history['sparse_categorical_accuracy'])
+        Hi = client_models[i].fit(trainLoaders[i], validation_data=validLoader, verbose=(args.verbose and i==0), epochs=local_epochs)
+        H.append(Hi.history['val_sparse_categorical_accuracy'])
     
     return np.mean(H, axis=0).tolist()
 
