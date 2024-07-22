@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from tqdm import *
+from sklearn.neighbors import KNeighborsClassifier
 
 def doFL(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer, args):
     for round in trange(rounds):
@@ -38,6 +39,19 @@ def ft_aggregate(server_model, client_models):
     server_model.trainable_variables[-1].assign(sum([client_models[j].trainable_variables[-1] for j in range(len(client_models))])/len(client_models))
     for j in range(len(client_models)):
         client_models[j].trainable_variables[-1].assign(server_model.trainable_variables[-1])
+
+def buildkNN(model, datas):
+    modelFT = tf.keras.models.Model(inputs = model.inputs,
+                                    outputs = [model.get_layer('feature').output])
+    features = []
+    labels = []
+    for data in datas:
+        features += modelFT.predict(data, verbose=False).tolist()
+        labels += data.labels.tolist()
+    
+    knn = KNeighborsClassifier(n_neighbors=3)
+    knn.fit(features, labels)
+    return modelFT, knn
 
 def doFT(model, data):
     modelFT = tf.keras.models.Model(inputs = model.inputs,
