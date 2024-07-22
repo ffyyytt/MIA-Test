@@ -25,7 +25,9 @@ __FOLDER__ = "cifar10"
 __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 10
 __N_SHADOW__ = 32
-__N_CLIENTS__ = 4
+__N_CLIENTS__ = 5
+__ROUNDS__ = 10
+__LOCALEPOCHS__ = 10
 __BATCH_SIZE__ = 32
 (X_train_cifar10, Y_train_cifar10), (X_valid_cifar10, Y_valid_cifar10) = cifar10.load_data()
 

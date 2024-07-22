@@ -19,6 +19,8 @@ if args.dataset == "cifar10":
     import data.cifar10 as data
 elif args.dataset == "AID":
     import data.aid as data
+elif args.dataset == "UCM":
+    import data.ucmerced as data
 else:
     print("Dataset not found")
     import data.cifar10 as data
@@ -28,12 +30,12 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
     strategy, AUTO = getStrategy()
     with strategy.scope():
         model, preprocess = model_factory(n_classes=data.__N_CLASSES__)
-        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-3),
+        model.compile(optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2),
                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
 
     trainData, inOutLabels = data.loadCenData(args.index, preprocess)
-    model.fit(trainData, verbose = args.verbose, epochs = 100)
+    H = model.fit(trainData, verbose = args.verbose, epochs = data.__ROUNDS__*data.__LOCALEPOCHS__)
 
     miaData, validData = data.load(preprocess)
     validPred = model.predict(validData, verbose = args.verbose)
@@ -43,4 +45,4 @@ if not os.path.isfile(f'{data.__FOLDER__}/cen/{args.index}.pickle'):
     print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
     with open(f'{data.__FOLDER__}/cen/{args.index}.pickle', 'wb') as handle:
-        pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([H["accuracy"], MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)

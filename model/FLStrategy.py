@@ -5,28 +5,28 @@ from tqdm import *
 from sklearn.neighbors import KNeighborsClassifier
 
 def doFL(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, rounds, optimizer, args):
+    H = []
     for round in trange(rounds):
-        yPred = do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer, args)
-        print(np.mean(np.argmax(yPred, axis=1) == validLoader.labels.flatten()))
-    return yPred
+        H += do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer, args)
+    return H
 
 def do_one_round(strategy, client_models, server_model, trainLoaders, validLoader, local_epochs, aggregate_fn, optimizer, args):
     aggregate_fn(server_model, client_models)
     with strategy.scope():
         for i in range(len(client_models)):
             if optimizer == "FedProx":
-                _optimizer = ProxSGD(learning_rate=1e-3, mu=1e-2)
+                _optimizer = ProxSGD(learning_rate=1e-2, mu=1e-3)
             else:
-                _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-3)
+                _optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
             client_models[i].compile(optimizer = _optimizer,
                                         loss = {'output': tf.keras.losses.SparseCategoricalCrossentropy()},
                                         metrics = {"output": [tf.keras.metrics.SparseCategoricalAccuracy()]})
-
+    H = []
     for i in range(len(client_models)):
-        client_models[i].fit(trainLoaders[i], verbose=(args.verbose and i==0), epochs=local_epochs)
-
-    yPred = server_model.predict(validLoader, verbose=False)
-    return yPred
+        Hi = client_models[i].fit(trainLoaders[i], verbose=(args.verbose and i==0), epochs=local_epochs)
+        H.append(Hi.history['accuracy'])
+    
+    return np.mean(H, axis=0).tolist()
 
 def avg_aggregate(server_model, client_models):
     for i in range(len(server_model.trainable_variables)):

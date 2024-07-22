@@ -34,19 +34,19 @@ class TFDataGen(tf.keras.utils.Sequence):
         label = self.labels[ids]
         return {"image": images}, {"output": label}
 
-__FOLDER__ = "AID"
+__FOLDER__ = "UCM"
 __RANDOM__SEED__ = 1312
 __N_CLASSES__ = 30
 __N_SHADOW__ = 32
-__N_CLIENTS__ = 20
+__N_CLIENTS__ = 10
 __ROUNDS__ = 10
-__LOCALEPOCHS__ = 4
+__LOCALEPOCHS__ = 2
 __BATCH_SIZE__ = 32
 
 def _loadAID():
     labels = []
     labelset = {}
-    imagePaths = glob.glob(os.path.expanduser("~")+"/data/AID/*/*")
+    imagePaths = glob.glob(os.path.expanduser("~")+"/data/UCMerced_LandUse/*/*/*")
     for file in imagePaths:
         if file.split("/")[-2] not in labelset:
             labelset[file.split("/")[-2]] = len(labelset)

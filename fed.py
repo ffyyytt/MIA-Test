@@ -6,8 +6,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 parser = argparse.ArgumentParser("YOLO")
 parser.add_argument("-FL", help="Model backbone", nargs='?', type=str, default="FedAvg")
 parser.add_argument("-method", help="0: Federated Learning, 1: Federated Feature", nargs='?', type=int, default=0)
-parser.add_argument("-rounds", help="Rounds", nargs='?', type=int, default=10)
-parser.add_argument("-epochs", help="Local epochs", nargs='?', type=int, default=10)
 parser.add_argument("-dataset", help="Dataset", nargs='?', type=str, default="cifar10")
 parser.add_argument("-index", help="Data index", nargs='?', type=int, default=0)
 parser.add_argument("-verbose", help="Verbose", nargs='?', type=bool, default=False)
@@ -25,6 +23,8 @@ if args.dataset == "cifar10":
     import data.cifar10 as data
 elif args.dataset == "AID":
     import data.aid as data
+elif args.dataset == "UCM":
+    import data.ucmerced as data
 else:
     print("Dataset not found")
     import data.cifar10 as data
@@ -50,7 +50,7 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.inde
         for i in range(len(clientModels)):
             doFT(clientModels[i], trainData[i])
     
-    doFL(strategy, clientModels, serverModel, trainData, validData, args.epochs, aggregate, args.rounds, args.FL, args)
+    H = doFL(strategy, clientModels, serverModel, trainData, validData, data.__LOCALEPOCHS__, aggregate, data.__ROUNDS__, args.FL, args)
     
     if args.method != 2:
         validPred = clientModels[0].predict(validData, verbose = args.verbose)
@@ -67,4 +67,4 @@ if not os.path.isfile(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.inde
         print("MIA:", np.mean(miaData.labels.flatten() == np.argmax(MIAPred, axis = 1)))
 
     with open(f"{data.__FOLDER__}/{args.FL}{'FT'*args.method}/{args.index}.pickle", 'wb') as handle:
-        pickle.dump([MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([H, MIAPred, inOutLabels], handle, protocol=pickle.HIGHEST_PROTOCOL)
