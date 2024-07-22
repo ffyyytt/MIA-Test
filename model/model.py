@@ -27,11 +27,40 @@ def getStrategy():
     AUTO = tf.data.experimental.AUTOTUNE
     return strategy, AUTO
 
+class Cosine(tf.keras.layers.Layer):
+    def __init__(self, num_classes, scale=32, **kwargs):
+        super().__init__(**kwargs)
+        self.scale = scale
+        self.num_classes = num_classes
+
+    def build(self, input_shape):
+        self.W = self.add_weight(shape=(self.num_classes, input_shape[0][-1]), initializer='glorot_uniform', trainable=True)
+
+    def cosine(self, feature):
+        x = tf.nn.l2_normalize(feature, axis=1)
+        w = tf.nn.l2_normalize(self.W, axis=1)
+        cos = tf.matmul(x, tf.transpose(w))
+        return cos
+
+    def call(self, inputs, training):
+        feature = inputs
+        logits = self.cosine(feature)
+        return logits*self.scale
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'scale': self.scale,
+            'num_classes': self.num_classes,
+        })
+        return config
+
 def model_factory(backboneName: str = "resnet18", n_classes: int = 10):
     inputImage = tf.keras.layers.Input(shape = (None, None, 3), dtype=tf.float32, name = f'image')
     backbone, preprocess = Classifiers.get(backboneName)
     feature = tf.keras.layers.GlobalAveragePooling2D(name="feature")(backbone(input_shape = (None, None, 3), weights="imagenet", include_top=False)(inputImage))
-    output = tf.keras.layers.Dense(n_classes, activation='softmax', name='output')(feature)
+    cosine = Cosine(n_classes)(feature)
+    output = tf.keras.layers.Softmax(dtype=tf.float32, name = "output")(cosine)
 
     model = tf.keras.models.Model(inputs = [inputImage], outputs = [output])
     return model, preprocess
