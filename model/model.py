@@ -42,7 +42,7 @@ class Cosine(tf.keras.layers.Layer):
         cos = tf.matmul(x, tf.transpose(w))
         return cos
 
-    def call(self, inputs, training):
+    def call(self, inputs):
         feature = inputs
         logits = self.cosine(feature)
         return logits*self.scale
