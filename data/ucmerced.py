@@ -1,8 +1,8 @@
 import os
-import cv2
 import glob
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit, train_test_split
 
 class TFDataGen(tf.keras.utils.Sequence):
@@ -21,8 +21,7 @@ class TFDataGen(tf.keras.utils.Sequence):
         images = []
         for file in self.imagePaths[ids]:
             try:
-                image = cv2.imread(file)   # reads an image in the BGR format
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)   # BGR -> RGB
+                image = plt.imread(file)   # reads an image in the BGR format
                 images.append(image)
             except:
                 pass
