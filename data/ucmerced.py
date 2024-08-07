@@ -42,7 +42,7 @@ __N_SHADOW__ = 32
 __N_CLIENTS__ = 10
 __ROUNDS__ = 10
 __LOCALEPOCHS__ = 2
-__BATCH_SIZE__ = 32
+__BATCH_SIZE__ = 16
 
 def _loadAID():
     labels = []
